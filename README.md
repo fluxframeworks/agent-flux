@@ -1,4 +1,4 @@
 # Agent Flux
- Agent Flux AI framework
+ Personal and organic AI framework
 
-![Agent Flux](docs/splash.webp)
+![Agent Flux](docs/splash_wide.png)
