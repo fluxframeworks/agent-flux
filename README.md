@@ -1,4 +1,8 @@
 # Agent Flux
+
+[![Join our Discord](https://img.shields.io/badge/Discord-Join%20our%20server-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/B8KZKNsPpj)
+
+
 **Personal and organic AI framework**
 - Agent Flux is not a predefined agentic framework. It is designed to be dynamic, organically growing, and learning as you use it.
 - Agent Flux is fully transparent, readable, comprehensible, and interactive.
