@@ -2,22 +2,12 @@
 # Agent Flux Documentation
 To begin with Agent Flux, follow the links below for detailed guides on various topics:
 
-- **[Installation](installation.md):** Set up Agent Flux on your system.
+- **[Installation](installation.md):** Set up (or [update](installation.md#-how-to-update-agent-flux)) Agent Flux on your system.
 - **[Quick Start](quickstart.md):** Begin using Agent Flux with practical examples.
 - **[Usage Guide](usage.md):** Explore advanced features and capabilities.
 - **[Architecture Overview](architecture.md):** Understand the internal workings of the framework.
 - **[Contributing](contribution.md):** Learn how to contribute to the Agent Flux project.
 - **[Troubleshooting and FAQ](troubleshooting.md):** Find answers to common issues and questions.
-
-## Key Features
-- **Dynamic and Organic:** Evolves from past interactions.
-- **Transparent and Customizable:** Open framework for user modifications.
-- **Computer as a Tool:** Utilize your operating system's full capabilities.
-- **Multi-Agent Cooperation:** Hierarchical structure for task management.
-- **Persistent Memory:** Remembers past interactions for continuous learning.
-- **Safe Code Execution:** Sandboxed Docker container environment for secure code execution.
-- **Interactive Terminal Interface:** Real-time observation and intervention in a command-line interface.
-- **Web UI:** User-friendly interface for managing agents.
 
 ### Your experience with Agent Flux starts now!
 
@@ -52,6 +42,14 @@ To begin with Agent Flux, follow the links below for detailed guides on various 
   - [Running a Simple Task](quickstart.md#running-a-simple-task)
   - [Example Interaction](quickstart.md#example-interaction)
   - [Next Steps](quickstart.md#next-steps)
+- [Usage Guide](usage.md)
+  - [Tool Usage](usage.md#tool-usage)
+  - [Example: Web Search and Code Execution](usage.md#example-web-search-and-code-execution)
+  - [Memory Management](usage.md#memory-management)
+  - [Multi-Agent Cooperation](usage.md#multi-agent-cooperation)
+  - [Prompt Engineering](usage.md#prompt-engineering)
+  - [Agent Behavior](usage.md#agent-behavior)
+  - [Using Agent Flux on your mobile device](usage.md#using-agent-flux-on-your-mobile-device)
 - [Architecture Overview](architecture.md)
   - [Core Components](architecture.md#core-components)
   - [Agent Hierarchy and Communication](architecture.md#agent-hierarchy-and-communication)
@@ -73,13 +71,6 @@ To begin with Agent Flux, follow the links below for detailed guides on various 
     - [Adding Extensions](architecture.md#adding-extensions)
     - [Adding Instruments](architecture.md#adding-instruments)
     - [Important Considerations](architecture.md#important-considerations)
-- [Usage Guide](usage.md)
-  - [Tool Usage](usage.md#tool-usage)
-  - [Example: Web Search and Code Execution](usage.md#example-web-search-and-code-execution)
-  - [Memory Management](usage.md#memory-management)
-  - [Multi-Agent Cooperation](usage.md#multi-agent-cooperation)
-  - [Prompt Engineering](usage.md#prompt-engineering)
-  - [Agent Behavior](usage.md#agent-behavior)
 - [Contributing to Agent Flux](contribution.md)
   - [Getting Started](contribution.md#getting-started)
   - [Making Changes](contribution.md#making-changes)
