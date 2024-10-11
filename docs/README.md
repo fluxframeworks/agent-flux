@@ -44,7 +44,7 @@ To begin with Agent Flux, follow the links below for detailed guides on various 
     - [6. Run Agent Flux](installation.md#6-run-agent-flux)
     - [Choosing Your LLMs](installation.md#choosing-your-llms)
       - [Installing and Using Ollama](installation.md#installing-and-using-ollama)
-    - [How to update Agent Flux](installation.md#how-to-update-agent-flux)
+    - [How to update Agent Flux](installation.md#-how-to-update-agent-flux)
     - [Conclusion](installation.md#conclusion)
 - [Quick Start](quickstart.md)
   - [Launching the Web UI](quickstart.md#launching-the-web-ui)
