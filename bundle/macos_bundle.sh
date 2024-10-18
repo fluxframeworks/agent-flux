@@ -37,9 +37,9 @@ if [ -d "agent-flux-git" ]; then
     fi
 fi
 
-# 4. Clone the repository (development branch)
-echo "Cloning the repository (development branch)..."
-git clone --branch development https://github.com/fluxframeworks/agent-flux agent-flux-git
+# 4. Clone the repository (testing branch)
+echo "Cloning the repository (testing branch)..."
+git clone --branch testing https://github.com/fluxframeworks/agent-flux agent-flux-git
 if [ $? -ne 0 ]; then
     echo "Error cloning the repository."
     exit 1

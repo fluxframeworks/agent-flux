@@ -70,8 +70,9 @@ if exist agent-flux-git (
     )
 )
 
-:: 4. Clone the repository (development branch)
-git clone --branch development https://github.com/fluxframeworks/agent-flux agent-flux-git
+:: 4. Clone the repository (testing branch)
+echo Cloning the repository (testing branch)...
+git clone --branch testing https://github.com/fluxframeworks/agent-flux agent-flux-git
 if %ERRORLEVEL% neq 0 (
     echo Error cloning the repository
     pause
