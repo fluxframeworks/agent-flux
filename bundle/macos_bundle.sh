@@ -22,35 +22,41 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# 3. Purge folder ./agent-flux (retry mechanism in case of failure)
-if [ -d "agent-flux" ]; then
-    echo "Deleting agent-flux folder..."
-    rm -rf agent-flux
-    if [ -d "agent-flux" ]; then
-        echo "Error: Unable to delete agent-flux folder, retrying..."
+# 3. Purge folder ./agent-flux-git (retry mechanism in case of failure)
+if [ -d "agent-flux-git" ]; then
+    echo "Deleting agent-flux-git folder..."
+    rm -rf agent-flux-git
+    if [ -d "agent-flux-git" ]; then
+        echo "Error: Unable to delete agent-flux-git folder, retrying..."
         sleep 3
-        rm -rf agent-flux
+        rm -rf agent-flux-git
     fi
-    if [ -d "agent-flux" ]; then
-        echo "Error: Failed to purge agent-flux folder after retry."
+    if [ -d "agent-flux-git" ]; then
+        echo "Error: Failed to purge agent-flux-git folder after retry."
         exit 1
     fi
 fi
 
 # 4. Clone the repository (development branch)
 echo "Cloning the repository (development branch)..."
-git clone --branch development https://github.com/fluxframeworks/agent-flux agent-flux
+git clone --branch development https://github.com/fluxframeworks/agent-flux agent-flux-git
 if [ $? -ne 0 ]; then
     echo "Error cloning the repository."
     exit 1
 fi
 
 # 5. Change directory to agent-flux
-cd agent-flux || { echo "Error changing directory"; exit 1; }
+# cd agent-flux || { echo "Error changing directory"; exit 1; }
 
 # 6. Install requirements
 echo "Installing requirements from requirements.txt..."
-pip install -r requirements.txt
+pip install -r ./agent-flux-git/requirements.txt
+if [ $? -ne 0 ]; then
+    echo "Error installing requirements."
+    exit 1
+fi
+
+pip install -r ./agent-flux-git/bundle/requirements.txt
 if [ $? -ne 0 ]; then
     echo "Error installing requirements."
     exit 1
@@ -61,7 +67,7 @@ fi
 
 # 8. Run bundle.py
 echo "Running bundle.py..."
-python ./bundle/bundle.py
+python ./agent-flux-git/bundle/bundle.py
 if [ $? -ne 0 ]; then
     echo "Error running bundle.py."
     exit 1
@@ -84,22 +90,24 @@ fi
 
 # 9. Create macOS package
 echo "Creating macOS package..."
-pkgbuild --root ./dist/agent-flux \
+pkgbuild --root ./agent-flux-git/bundle/dist/agent-flux \
          --identifier fluxframeworks.agent-flux \
-         --install-location /tmp/agent-flux \
-         --scripts ./mac_pkg_scripts \
+         --install-location "$HOME/Library/Application Support/agent-flux/install" \
+         --scripts ./agent-flux-git/bundle/mac_pkg_scripts \
+         --ownership preserve \
          agent-flux-preinstalled-mac-m1.pkg
+
 if [ $? -ne 0 ]; then
     echo "Error creating macOS package."
     exit 1
 fi
 
-# 10. Remove the agent-flux folder
-echo "Deleting agent-flux folder..."
+# 10. Remove the agent-flux-git folder
+echo "Deleting agent-flux-git folder..."
 cd ..
-rm -rf agent-flux
-if [ -d "agent-flux" ]; then
-    echo "Error: Failed to delete agent-flux folder."
+rm -rf agent-flux-git
+if [ -d "agent-flux-git" ]; then
+    echo "Error: Failed to delete agent-flux-git folder."
     exit 1
 fi
 

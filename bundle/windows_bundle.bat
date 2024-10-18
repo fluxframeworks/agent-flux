@@ -56,38 +56,44 @@ if %errorlevel% neq 0 (
 )
 
 :: 3. Purge folder ./agent-flux (retry mechanism in case of failure)
-if exist agent-flux (
-    echo Deleting agent-flux folder...
-    rmdir /s /q agent-flux
-    if exist agent-flux (
-        echo Error: Unable to delete agent-flux folder, retrying...
+if exist agent-flux-git (
+    echo Deleting agent-flux-git folder...
+    rmdir /s /q agent-flux-git
+    if exist agent-flux-git (
+        echo Error: Unable to delete agent-flux-git folder, retrying...
         timeout /t 3 /nobreak >nul
-        rmdir /s /q agent-flux
+        rmdir /s /q agent-flux-git
     )
-    if exist agent-flux (
-        echo Error: Failed to purge agent-flux folder after retry.
+    if exist agent-flux-git (
+        echo Error: Failed to purge agent-flux-git folder after retry.
         pause
     )
 )
 
-:: 4. Clone the repository (testing branch)
-git clone --branch testing https://github.com/fluxframeworks/agent-flux agent-flux
+:: 4. Clone the repository (development branch)
+git clone --branch development https://github.com/fluxframeworks/agent-flux agent-flux-git
 if %ERRORLEVEL% neq 0 (
     echo Error cloning the repository
     pause
 )
 
-:: 5. Change directory to agent-flux
-cd agent-flux
+@REM :: 5. Change directory to agent-flux
+@REM cd agent-flux
+@REM if %errorlevel% neq 0 (
+@REM     echo Error changing directory
+@REM     pause
+@REM )
+
+:: 6. Install requirements
+pip install -r ./agent-flux-git/requirements.txt
 if %errorlevel% neq 0 (
-    echo Error changing directory
+    echo Error installing project requirements
     pause
 )
 
-:: 6. Install requirements
-pip install -r requirements.txt
+pip install -r ./agent-flux-git/bundle/requirements.txt
 if %errorlevel% neq 0 (
-    echo Error installing requirements
+    echo Error installing bundle requirements
     pause
 )
 
@@ -99,9 +105,17 @@ if %errorlevel% neq 0 (
 )
 
 :: 8. Run bundle.py
-python ./bundle/bundle.py
+python ./agent-flux-git/bundle/bundle.py
 if %errorlevel% neq 0 (
     echo Error running bundle.py
+    pause
+)
+
+:: 9. Create Windows self-extracting archive with 7-Zip
+echo Creating Windows self-extracting archive...
+"C:\Program Files\7-Zip\7z.exe" a -sfx"C:\Program Files\7-Zip\7z.sfx" agent-flux-preinstalled-win-x86.exe ".\agent-flux-git\bundle\dist\agent-flux" -mx=7
+if %errorlevel% neq 0 (
+    echo Error creating Windows self-extracting archive.
     pause
 )
 
