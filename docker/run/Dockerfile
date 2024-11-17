@@ -21,9 +21,6 @@ RUN apt-get update && apt-get install -y \
 # Cleanup package list
 RUN rm -rf /var/lib/apt/lists/*
 
-# Clone Agent Flux repository
-RUN git clone --branch development https://github.com/fluxframeworks/agent-flux.git /git/agent-flux
-
 # Set up SSH
 RUN mkdir /var/run/sshd && \
     echo 'root:toor' | chpasswd && \
@@ -33,12 +30,8 @@ RUN mkdir /var/run/sshd && \
 ENV VIRTUAL_ENV=/opt/venv
 RUN python3 -m venv $VIRTUAL_ENV
 
-# Copy the script to ensure .bashrc is in the root directory
-COPY initialize.sh /usr/local/bin/initialize.sh
-RUN chmod +x /usr/local/bin/initialize.sh
-
-# Copy contents of filesystem directory to /fs
-COPY ./fs/ /fs
+# Copy contents of filesystem directory to /
+COPY ./fs/ /
 
 # Ensure the virtual environment and pip setup
 RUN $VIRTUAL_ENV/bin/pip install --upgrade pip
@@ -48,13 +41,27 @@ RUN $VIRTUAL_ENV/bin/pip install \
     ipython \
     requests
 
+# Clone Agent Flux repository
+RUN git clone --branch development https://github.com/fluxframeworks/agent-flux.git /git/agent-flux
+
 # Install A0 python packages
 RUN $VIRTUAL_ENV/bin/pip install -r /git/agent-flux/requirements.txt
 # Preload A0
 RUN $VIRTUAL_ENV/bin/python /git/agent-flux/preload.py
 
+
+
+# Clone additional git repos
+RUN git clone https://github.com/searxng/searxng.git /git/searxng
+
+
+# install additional software
+RUN bash /ins/install_searxng.sh
+
+
+
 # Expose ports
 EXPOSE 22 80
 
-# Init .bashrc
-CMD ["/usr/local/bin/initialize.sh"]
+# initialize runtime
+CMD ["/bin/bash", "/exe/initialize.sh"]

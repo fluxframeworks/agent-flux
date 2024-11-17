@@ -3,4 +3,4 @@ docker build -t agent-flux-run:latest .
 
 # dockerhub
 docker login
-docker buildx build --platform linux/amd64,linux/arm64 -t fluxframeworks/agent-flux-run:latest --push .
+docker buildx build --platform linux/amd64,linux/arm64 -t fluxframeworks/agent-flux-run:testing --push .
