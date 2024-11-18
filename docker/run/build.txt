@@ -1,6 +1,7 @@
-# local image
-docker build -t agent-flux-run:latest .
+# local image with smart cache
+docker build -t agent-flux-run:local --build-arg CACHE_DATE=$(date +%Y-%m-%d:%H:%M:%S) .
 
-# dockerhub
+# dockerhub push with and without caching
 docker login
-docker buildx build --platform linux/amd64,linux/arm64 -t fluxframeworks/agent-flux-run:testing --push .
+docker buildx build --platform linux/amd64,linux/arm64 -t fluxframeworks/agent-flux-run:testing --push --build-arg CACHE_DATE=$(date +%Y-%m-%d:%H:%M:%S) .
+docker buildx build --platform linux/amd64,linux/arm64 -t fluxframeworks/agent-flux-run:testing --push --no-cache .

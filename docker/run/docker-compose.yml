@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  agent-flux:
+    container_name: agent-flux
+    image: fluxframeworks/agent-flux-run:testing
+    volumes:
+      - ./agent-flux:/a0
+    ports:
+      - "8080:80"
