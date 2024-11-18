@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Constants
-IMAGE_NAME="agent-flux-run"
+IMAGE_NAME="fluxframeworks/agent-flux-run"
 DEFAULT_CONTAINER_NAME="agent-flux"
 BASE_PORT=50080
 
