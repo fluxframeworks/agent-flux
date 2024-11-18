@@ -2,7 +2,7 @@
 
 BRANCH="development"
 
-git clone -b "$BRANCH" "https://github.com/fluxframeworks/agent-flux" "/a0"
+git clone -b "$BRANCH" "https://github.com/fluxframeworks/agent-flux" "/git/agent-flux"
 
 # Create and activate Python virtual environment
 python3 -m venv /opt/venv
@@ -15,7 +15,7 @@ pip install --upgrade pip ipython requests
 pip install torch --index-url https://download.pytorch.org/whl/cpu
 
 # Install remaining A0 python packages
-pip install -r /a0/requirements.txt
+pip install -r /github/agent-flux/requirements.txt
 
 # Preload A0
-python /a0/preload.py
+python /github/agent-flux/preload.py
