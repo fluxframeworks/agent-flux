@@ -15,7 +15,7 @@ pip install --upgrade pip ipython requests
 pip install torch --index-url https://download.pytorch.org/whl/cpu
 
 # Install remaining A0 python packages
-pip install -r /github/agent-flux/requirements.txt
+pip install -r /git/agent-flux/requirements.txt
 
 # Preload A0
-python /github/agent-flux/preload.py
+python /git/agent-flux/preload.py
