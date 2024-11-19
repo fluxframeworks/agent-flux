@@ -1,8 +1,15 @@
 #!/bin/bash
 
-BRANCH="development"
+# branch from parameter
+if [ -z "$1" ]; then
+    echo "Error: Branch parameter is empty. Please provide a valid branch name."
+    exit 1
+fi
+BRANCH="$1"
+
 
 git clone -b "$BRANCH" "https://github.com/fluxframeworks/agent-flux" "/git/agent-flux"
+
 
 # Create and activate Python virtual environment
 python3 -m venv /opt/venv
