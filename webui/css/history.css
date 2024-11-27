@@ -1,6 +1,11 @@
+.ace_scrollbar-v {
+    overflow-y: auto;
+  }
+  
 #json-viewer-container{
     width: 100%;
-    height: 60vh;
+    height: 71vh;
+    border-radius: 0.4rem;
     overflow: auto;
 }
 
