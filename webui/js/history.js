@@ -28,7 +28,9 @@ async function showEditorModal(data, type = "json", title, description = "") {
 
         const dark = localStorage.getItem('darkMode');
         if (dark != "false") {
-            editor.setTheme("ace/theme/monokai");
+            editor.setTheme("ace/theme/github_dark");
+        } else {
+            editor.setTheme("ace/theme/tomorrow");
         }
 
         editor.session.setMode("ace/mode/" + type);
