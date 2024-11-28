@@ -561,7 +561,9 @@
                                     Up
                                 </button>
 
-                                <span class="current-path" x-text="browser.currentPath || 'Current Path: /'"></span>
+                                <div id="current-path">
+                                    <span id="path-text" x-text="browser.currentPath"></span>
+                                </div>
                             </div>
 
                             <div class="files-list">

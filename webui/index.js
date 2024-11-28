@@ -789,6 +789,18 @@ function hideToast() {
     }, 400); // Match this with CSS transition duration
 }
 
+function hideToast() {
+    const toast = document.getElementById('toast');
+    toast.classList.remove('show');
+    toast.classList.add('hide');
+
+    // Remove the element from display after animation completes
+    setTimeout(() => {
+        toast.style.display = 'none';
+        toast.classList.remove('hide');
+    }, 300); // Match this with animation duration
+}
+
 function scrollChanged(isAtBottom) {
     const inputAS = Alpine.$data(autoScrollSwitch);
     inputAS.autoScroll = isAtBottom;
