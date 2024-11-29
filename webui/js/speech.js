@@ -14,6 +14,38 @@ const Status = {
     PROCESSING: 'processing'
 };
 
+const micSettings = {
+    stt_model_size: 'tiny',
+    stt_language: 'en',
+    stt_silence_threshold: 0.05,
+    stt_silence_duration: 1000,
+    stt_waiting_timeout: 2000,
+};
+window.micSettings = micSettings;
+loadMicSettings();
+
+function densify(x) {
+    return Math.exp(-5 * (1 - x));
+}
+
+async function loadMicSettings() {
+    try {
+        const response = await fetch('/settings_get');
+        const data = await response.json();
+        const sttSettings = data.settings.sections.find(s => s.title === 'Speech to Text');
+
+        if (sttSettings) {
+            // Update options from server settings
+            sttSettings.fields.forEach(field => {
+                const key = field.id; //.split('.')[1]; // speech_to_text.model_size -> model_size
+                micSettings[ key ] = field.value;
+            });
+        }
+    } catch (error) {
+        console.error('Failed to load speech settings:', error);
+    }
+}
+
 class MicrophoneInput {
     constructor(updateCallback, options = {}) {
         this.mediaRecorder = null;
@@ -148,7 +180,7 @@ class MicrophoneInput {
             if (this.status === Status.WAITING) {
                 this.status = Status.PROCESSING;
             }
-        }, this.options.waitingTimeout);
+        }, micSettings.stt_waiting_timeout);
     }
 
     handleProcessingState() {
@@ -228,7 +260,7 @@ class MicrophoneInput {
             const now = Date.now();
 
             // Update status based on audio level
-            if (rms > this.options.silenceThreshold) {
+            if (rms > densify(micSettings.stt_silence_threshold)) {
                 this.lastAudioTime = now;
                 this.silenceStartTime = null;
 
@@ -242,7 +274,7 @@ class MicrophoneInput {
                 }
 
                 const silenceDuration = now - this.silenceStartTime;
-                if (silenceDuration >= this.options.silenceDuration) {
+                if (silenceDuration >= micSettings.stt_silence_duration) {
                     this.status = Status.WAITING;
                 }
             }
@@ -326,7 +358,7 @@ class MicrophoneInput {
 
 // Initialize and handle click events
 async function initializeMicrophoneInput() {
-    microphoneInput = new MicrophoneInput(
+    window.microphoneInput = microphoneInput = new MicrophoneInput(
         async (text, isFinal) => {
             if (isFinal) {
                 updateChatInput(text);
