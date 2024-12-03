@@ -533,6 +533,14 @@ window.toggleSpeech = function (isOn) {
     if (!isOn) speech.stop();
 };
 
+window.nudge = async function () {
+    try {
+        const resp = await sendJsonData("/nudge", { ctxid: getContext() });
+    } catch (e) {
+        toast(e.message, "error");
+    }
+};
+
 // Modify this part
 document.addEventListener('DOMContentLoaded', () => {
     const isDarkMode = localStorage.getItem('darkMode') !== 'false';

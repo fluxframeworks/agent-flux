@@ -91,7 +91,6 @@ class AgentContext:
 
         self.process = DeferredTask(current_agent.monologue)
         return self.process
-
     def communicate(self, msg: "UserMessage", broadcast_level: int = 1):
         self.paused = False  # unpause if paused
 
