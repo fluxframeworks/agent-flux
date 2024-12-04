@@ -802,6 +802,18 @@ function toast(text, type = 'info', timeout = 5000) {
 function hideToast() {
     const toast = document.getElementById('toast');
 
+    // Only trigger animation if toast is not already visible
+    if (!isVisible) {
+        // Remove any existing animation classes
+        toast.classList.remove('show', 'hide');
+
+        // Show the toast and trigger animation
+        toast.style.display = 'flex';
+        // Force a reflow to ensure the animation triggers
+        void toast.offsetWidth;
+        toast.classList.add('show');
+    }
+
     // Clear any existing timeout
     if (toast.timeoutId) {
         clearTimeout(toast.timeoutId);
