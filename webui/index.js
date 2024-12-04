@@ -543,22 +543,29 @@ window.nudge = async function () {
 
 window.restart = async function () {
     try {
+        // First try to initiate restart
         const resp = await sendJsonData("/restart", {});
     } catch (e) {
         //error expected here
         toast("Restarting...", "info", 0);
         while (true) {
             try {
-                // try health check until server is back up again
                 const resp = await sendJsonData("/health", {});
+                // Server is back up, show success message
                 await new Promise(resolve => setTimeout(resolve, 250));
                 toast("Restarted", "success", 2000);
                 return;
             } catch (e) {
-                continue;
+                // Server still down, keep waiting
+                retries++;
+                await new Promise(resolve => setTimeout(resolve, 250));
             }
         }
 
+        // If we get here, restart failed or took too long
+        hideToast();
+        await new Promise(resolve => setTimeout(resolve, 400));
+        toast("Restart timed out or failed", "error", 5000);
     }
 };
 
@@ -802,17 +809,69 @@ function toast(text, type = 'info', timeout = 5000) {
 function hideToast() {
     const toast = document.getElementById('toast');
 
-    // Only trigger animation if toast is not already visible
-    if (!isVisible) {
-        // Remove any existing animation classes
-        toast.classList.remove('show', 'hide');
+    // Add the close button event listener
+    const closeButton = document.querySelector('.toast__close');
+    closeButton.onclick = () => {
+        hideToast();
+    };
 
-        // Show the toast and trigger animation
-        toast.style.display = 'flex';
-        // Force a reflow to ensure the animation triggers
-        void toast.offsetWidth;
-        toast.classList.add('show');
+    // Add the copy button event listener
+    copyButton.onclick = () => {
+        navigator.clipboard.writeText(text);
+        copyButton.textContent = 'Copied!';
+        setTimeout(() => {
+            copyButton.textContent = 'Copy';
+        }, 2000);
+    };
+
+    // Show the toast
+    toast.style.display = 'flex';
+    // Force a reflow to ensure the animation triggers
+    void toast.offsetWidth;
+    toast.classList.add('show');
+
+    // Set timeout if specified
+    if (timeout) {
+        const minTimeout = Math.max(timeout, 5000);
+        toast.timeoutId = setTimeout(() => {
+            hideToast();
+        }, minTimeout);
     }
+};
+
+if (isVisible) {
+    // If a toast is visible, hide it first then show the new one
+    toast.classList.remove('show');
+    toast.classList.add('hide');
+
+    // Wait for hide animation to complete before showing new toast
+    setTimeout(() => {
+        toast.classList.remove('hide');
+        updateAndShowToast();
+    }, 400); // Match this with CSS transition duration
+} else {
+    // If no toast is visible, show the new one immediately
+    updateAndShowToast();
+}
+
+// Clear any existing timeout
+if (toast.timeoutId) {
+    clearTimeout(toast.timeoutId);
+    toast.timeoutId = null;
+}
+
+toast.classList.remove('show');
+toast.classList.add('hide');
+
+// Wait for the hide animation to complete before removing from display
+setTimeout(() => {
+    toast.style.display = 'none';
+    toast.classList.remove('hide');
+}, 400); // Match this with CSS transition duration
+}
+
+function hideToast() {
+    const toast = document.getElementById('toast');
 
     // Clear any existing timeout
     if (toast.timeoutId) {
@@ -828,18 +887,6 @@ function hideToast() {
         toast.style.display = 'none';
         toast.classList.remove('hide');
     }, 400); // Match this with CSS transition duration
-}
-
-function hideToast() {
-    const toast = document.getElementById('toast');
-    toast.classList.remove('show');
-    toast.classList.add('hide');
-
-    // Remove the element from display after animation completes
-    setTimeout(() => {
-        toast.style.display = 'none';
-        toast.classList.remove('hide');
-    }, 300); // Match this with animation duration
 }
 
 function scrollChanged(isAtBottom) {
