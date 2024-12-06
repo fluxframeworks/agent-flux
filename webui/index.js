@@ -12,6 +12,8 @@ const statusSection = document.getElementById('status-section');
 const chatsSection = document.getElementById('chats-section');
 const progressBar = document.getElementById('progress-bar');
 const autoScrollSwitch = document.getElementById('auto-scroll-switch');
+const timeDate = document.getElementById('time-date-container');
+
 
 let autoScroll = true;
 let context = "";
@@ -159,7 +161,7 @@ export async function sendMessage() {
             adjustTextareaHeight();
         }
     } catch (e) {
-        toast(e.message, "error");
+        toastFetchError("Error sending message", e);
     }
 }
 
@@ -360,11 +362,7 @@ async function poll() {
         inputAD.paused = response.paused;
 
         // Update status icon state
-        const timeDate = document.getElementById('time-date-container');
-        if (timeDate) {
-            const statusIcon = Alpine.$data(timeDate.querySelector('.status-icon'));
-            statusIcon.connected = true;
-        }
+        setConnectionStatus(true);
 
         const chatsAD = Alpine.$data(chatsSection);
         chatsAD.contexts = response.contexts;
@@ -374,11 +372,7 @@ async function poll() {
 
     } catch (error) {
         console.error('Error:', error);
-        const timeDate = document.getElementById('time-date-container');
-        if (timeDate) {
-            const statusIcon = Alpine.$data(timeDate.querySelector('.status-icon'));
-            statusIcon.connected = false;
-        }
+        setConnectionStatus(false);
     }
 
     return updated;
@@ -543,6 +537,10 @@ window.nudge = async function () {
 
 window.restart = async function () {
     try {
+        if (!getConnectionStatus()) {
+            toast("Backend disconnected, cannot restart.", "error");
+            return;
+        }
         // First try to initiate restart
         const resp = await sendJsonData("/restart", {});
     } catch (e) {

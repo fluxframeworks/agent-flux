@@ -42,6 +42,7 @@ async function loadMicSettings() {
             });
         }
     } catch (error) {
+        window.toastFetchError("Failed to load speech settings", error);
         console.error('Failed to load speech settings:', error);
     }
 }
@@ -313,8 +314,8 @@ class MicrophoneInput {
                 await this.updateCallback(result.text, true);
             }
         } catch (error) {
+            window.toastFetchError("Transcription error", error);
             console.error('Transcription error:', error);
-            toast('Transcription failed.', 'error');
         } finally {
             this.audioChunks = [];
             this.status = Status.LISTENING;

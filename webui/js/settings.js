@@ -10,91 +10,97 @@ const settingsModalProxy = {
         const modalAD = Alpine.$data(modalEl);
 
         //get settings from backend
-        const set = await sendJsonData("/settings_get", null);
+        try {
+            const set = await sendJsonData("/settings_get", null);
 
-        const settings = {
-            "title": "Settings page",
-            "buttons": [
-                {
-                    "id": "save",
-                    "title": "Save",
-                    "classes": "btn btn-ok"
-                },
-                {
-                    "id": "cancel",
-                    "title": "Cancel",
-                    "type": "secondary",
-                    "classes": "btn btn-cancel"
-                }
-            ],
-            "sections": set.settings.sections
-        };
+            const settings = {
+                "title": "Settings page",
+                "buttons": [
+                    {
+                        "id": "save",
+                        "title": "Save",
+                        "classes": "btn btn-ok"
+                    },
+                    {
+                        "id": "cancel",
+                        "title": "Cancel",
+                        "type": "secondary",
+                        "classes": "btn btn-cancel"
+                    }
+                ],
+                "sections": set.settings.sections
+            };
 
-        modalAD.isOpen = true; // Update directly
-        modalAD.settings = settings; // Update directly
+            modalAD.isOpen = true; // Update directly
+            modalAD.settings = settings; // Update directly
 
-        return new Promise(resolve => {
-            this.resolvePromise = resolve;
-        });
-    },
+            return new Promise(resolve => {
+                this.resolvePromise = resolve;
+            });
+        },
 
     async handleButton(buttonId) {
-        if (buttonId === 'save') {
+            if (buttonId === 'save') {
 
-            const modalEl = document.getElementById('settingsModal');
-            const modalAD = Alpine.$data(modalEl);
-            resp = await window.sendJsonData("/settings_set", modalAD.settings);
-            document.dispatchEvent(new CustomEvent('settings-updated', { detail: resp.settings }));
-            this.resolvePromise({
-                status: 'saved',
-                data: resp.settings
-            });
-        } else if (buttonId === 'cancel') {
-            this.handleCancel();
-        }
-        this.isOpen = false;
-    },
+                const modalEl = document.getElementById('settingsModal');
+                const modalAD = Alpine.$data(modalEl);
+                try {
+                    resp = await window.sendJsonData("/settings_set", modalAD.settings);
+                } catch (e) {
+                    window.toastFetchError("Error saving settings", e);
+                    return;
+                }
+                document.dispatchEvent(new CustomEvent('settings-updated', { detail: resp.settings }));
+                this.resolvePromise({
+                    status: 'saved',
+                    data: resp.settings
+                });
+            } else if (buttonId === 'cancel') {
+                this.handleCancel();
+            }
+            this.isOpen = false;
+        },
 
     async handleCancel() {
-        this.resolvePromise({
-            status: 'cancelled',
-            data: null
-        });
-        this.isOpen = false;
-    },
+            this.resolvePromise({
+                status: 'cancelled',
+                data: null
+            });
+            this.isOpen = false;
+        },
 
-    handleFieldButton(field) {
-        console.log(`Button clicked: ${field.action}`);
-    }
-};
-
-
-// function initSettingsModal() {
-
-//     window.openSettings = function () {
-//         proxy.openModal().then(result => {
-//             console.log(result);  // This will log the result when the modal is closed
-//         });
-//     }
-
-//     return proxy
-// }
-
-
-// document.addEventListener('alpine:init', () => {
-//     Alpine.store('settingsModal', initSettingsModal());
-// });
-
-function getIconName(title) {
-    const iconMap = {
-        'Agent Config': 'agentconfig',
-        'Chat Model': 'chat-model',
-        'Utility model': 'utility-model',
-        'Embedding Model': 'embed-model',
-        'API Keys': 'api-keys',
-        'Authentication': 'auth',
-        'Development': 'dev'
+        handleFieldButton(field) {
+            console.log(`Button clicked: ${field.action}`);
+        }
     };
-    return iconMap[ title ] || 'default';
+
+
+    // function initSettingsModal() {
+
+    //     window.openSettings = function () {
+    //         proxy.openModal().then(result => {
+    //             console.log(result);  // This will log the result when the modal is closed
+    //         });
+    //     }
+
+    //     return proxy
+    // }
+
+
+    // document.addEventListener('alpine:init', () => {
+    //     Alpine.store('settingsModal', initSettingsModal());
+    // });
+
+    function getIconName(title) {
+        const iconMap = {
+            'Agent Config': 'agentconfig',
+            'Chat Model': 'chat-model',
+            'Utility model': 'utility-model',
+            'Embedding Model': 'embed-model',
+            'API Keys': 'api-keys',
+            'Authentication': 'auth',
+            'Development': 'dev'
+        };
+return iconMap[ title ] || 'default';
 }
 

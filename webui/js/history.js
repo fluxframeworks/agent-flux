@@ -1,7 +1,12 @@
 import { getContext } from "../index.js";
 
 export async function openHistoryModal() {
-    const hist = await window.sendJsonData("/history_get", { context: getContext() });
+    try {
+        const hist = await window.sendJsonData("/history_get", { context: getContext() });
+    } catch (e) {
+        window.toastFetchError("Error fetching history", e);
+        return;
+    }
     const data = JSON.stringify(hist.history, null, 4);
     const size = hist.tokens;
     await showEditorModal(data, "json", `History ~${size} tokens`, "Conversation history how the agent can see it. History is compressed to fit into the context window.");
