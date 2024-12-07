@@ -1,4 +1,5 @@
 import asyncio
+from collections import OrderedDict
 from dataclasses import dataclass, field
 import time, importlib, inspect, os, json
 from typing import Any, Optional, Dict, TypedDict
@@ -65,15 +66,29 @@ class AgentContext:
             context.process.kill()
         return context
 
-    def reset(self):
+    def kill_process(self):
         if self.process:
             self.process.kill()
+
+    def reset(self):
+        self.kill_process()
         self.log.reset()
         self.agent0 = Agent(0, self.config, self)
         self.streaming_agent = None
         self.paused = False
 
-    def communicate(self, msg: str, broadcast_level: int = 1):
+    def nudge(self):
+        self.kill_process()
+        self.paused = False
+        if self.streaming_agent:
+            current_agent = self.streaming_agent
+        else:
+            current_agent = self.agent0
+
+        self.process = DeferredTask(current_agent.monologue)
+        return self.process
+
+    def communicate(self, msg: "UserMessage", broadcast_level: int = 1):
         self.paused = False  # unpause if paused
 
         if self.streaming_agent:
@@ -85,7 +100,7 @@ class AgentContext:
             # set intervention messages to agent(s):
             intervention_agent = current_agent
             while intervention_agent and broadcast_level != 0:
-                intervention_agent.intervention_message = msg
+                intervention_agent.intervention = msg
                 broadcast_level -= 1
                 intervention_agent = intervention_agent.data.get(Agent.DATA_NAME_SUPERIOR, None)
         else:
@@ -126,28 +141,24 @@ class AgentConfig:
     rate_limit_requests: int = 15
     rate_limit_input_tokens: int = 0
     rate_limit_output_tokens: int = 0
-    msgs_keep_max: int = 25
-    msgs_keep_start: int = 5
-    msgs_keep_end: int = 10
     response_timeout_seconds: int = 60
-    max_tool_response_length: int = 3000
-    code_exec_docker_enabled: bool = True
-    code_exec_docker_name: str = "agent-flux-exe"
-    code_exec_docker_image: str = "fluxframeworks/agent-flux-exe:latest"
+    code_exec_docker_enabled: bool = False
+    code_exec_docker_name: str = "A0-dev"
+    code_exec_docker_image: str = "fluxframeworks/agent-flux-run:development"
     code_exec_docker_ports: dict[str, int] = field(
-        default_factory=lambda: {"22/tcp": 50022}
+        default_factory=lambda: {"22/tcp": 55022, "80/tcp": 55080}
     )
     code_exec_docker_volumes: dict[str, dict[str, str]] = field(
         default_factory=lambda: {
+            files.get_base_dir(): {"bind": "/a0", "mode": "rw"},
             files.get_abs_path("work_dir"): {"bind": "/root", "mode": "rw"},
-            files.get_abs_path("instruments"): {"bind": "/instruments", "mode": "rw"},
         }
     )
     code_exec_ssh_enabled: bool = True
     code_exec_ssh_addr: str = "localhost"
-    code_exec_ssh_port: int = 50022
+    code_exec_ssh_port: int = 55022
     code_exec_ssh_user: str = "root"
-    code_exec_ssh_pass: str = "toor"
+    code_exec_ssh_pass: str = ""
     additional: Dict[str, Any] = field(default_factory=dict)
 
 
@@ -373,9 +384,15 @@ class Agent:
             )  # Re-raise the exception to cancel the loop
         else:
             # Handling for general exceptions
+            error_text = errors.error_text(exception)
             error_message = errors.format_error(exception)
             PrintStyle(font_color="red", padding=True).print(error_message)
-            self.context.log.log(type="error", content=error_message)
+            self.context.log.log(
+                type="error",
+                heading="Error",
+                content=error_message,
+                kvps={"text": error_text},
+            )
             raise HandledException(exception)  # Re-raise the exception to kill the loop
 
     def parse_prompt(self, file: str, **kwargs) -> tuple[list, dict]:
@@ -533,10 +550,10 @@ class Agent:
         while self.context.paused:
             await asyncio.sleep(0.1)  # wait if paused
         if (
-            self.intervention_message
+            self.intervention
         ):  # if there is an intervention message, but not yet processed
-            msg = self.intervention_message
-            self.intervention_message = ""  # reset the intervention message
+            msg = self.intervention
+            self.intervention = None  # reset the intervention message
             if progress.strip():
                 await self.hist_add_ai_response(progress)
             # append the intervention message

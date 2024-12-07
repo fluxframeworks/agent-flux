@@ -19,10 +19,8 @@ RUN apt-get update && apt-get install -y \
     git \
     ffmpeg 
 
-# Set up SSH
-RUN mkdir /var/run/sshd && \
-    echo 'root:toor' | chpasswd && \
-    sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+# pre installation steps
+RUN bash /ins/pre_install.sh $BRANCH
 
 # Copy contents of the project to /a0
 COPY ./fs/ /

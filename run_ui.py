@@ -57,6 +57,7 @@ def run():
 
     # Suppress only request logs but keep the startup messages
     from werkzeug.serving import WSGIRequestHandler
+    from werkzeug.serving import make_server
 
     class NoRequestLoggingWSGIRequestHandler(WSGIRequestHandler):
         def log_request(self, code="-", size="-"):

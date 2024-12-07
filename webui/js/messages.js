@@ -78,28 +78,28 @@ export function _drawMessage(messageContainer, heading, content, temp, followUp,
 
 export function drawMessageDefault(messageContainer, id, type, heading, content, temp, kvps = null) {
     const messageContent = convertImageTags(content); // Convert image tags
-    _drawMessage(messageContainer, heading, messageContent, temp, false, kvps, ['message-ai', 'message-default'], ['msg-json']);
+    _drawMessage(messageContainer, heading, messageContent, temp, false, kvps, [ 'message-ai', 'message-default' ], [ 'msg-json' ]);
 }
 
 export function drawMessageAgent(messageContainer, id, type, heading, content, temp, kvps = null) {
     let kvpsFlat = null;
     if (kvps) {
-        kvpsFlat = { ...kvps, ...kvps['tool_args'] || {} };
-        delete kvpsFlat['tool_args'];
+        kvpsFlat = { ...kvps, ...kvps[ 'tool_args' ] || {} };
+        delete kvpsFlat[ 'tool_args' ];
     }
 
     const messageContent = convertImageTags(content); // Convert image tags
-    _drawMessage(messageContainer, heading, messageContent, temp, false, kvpsFlat, ['message-ai', 'message-agent'], ['msg-json']);
+    _drawMessage(messageContainer, heading, messageContent, temp, false, kvpsFlat, [ 'message-ai', 'message-agent' ], [ 'msg-json' ]);
 }
 
 export function drawMessageResponse(messageContainer, id, type, heading, content, temp, kvps = null) {
     const messageContent = convertImageTags(content); // Convert image tags
-    _drawMessage(messageContainer, heading, messageContent, temp, true, null, ['message-ai', 'message-agent-response']);
+    _drawMessage(messageContainer, heading, messageContent, temp, true, null, [ 'message-ai', 'message-agent-response' ]);
 }
 
 export function drawMessageDelegation(messageContainer, id, type, heading, content, temp, kvps = null) {
     const messageContent = convertImageTags(content); // Convert image tags
-    _drawMessage(messageContainer, heading, messageContent, temp, true, kvps, ['message-ai', 'message-agent', 'message-agent-delegation']);
+    _drawMessage(messageContainer, heading, messageContent, temp, true, kvps, [ 'message-ai', 'message-agent', 'message-agent-delegation' ]);
 }
 
 export function drawMessageUser(messageContainer, id, type, heading, content, temp, kvps = null) {
@@ -180,43 +180,43 @@ export function drawMessageUser(messageContainer, id, type, heading, content, te
 
 export function drawMessageTool(messageContainer, id, type, heading, content, temp, kvps = null) {
     const messageContent = convertImageTags(content); // Convert image tags
-    _drawMessage(messageContainer, heading, messageContent, temp, true, kvps, ['message-ai', 'message-tool'], ['msg-output']);
+    _drawMessage(messageContainer, heading, messageContent, temp, true, kvps, [ 'message-ai', 'message-tool' ], [ 'msg-output' ]);
 }
 
 export function drawMessageCodeExe(messageContainer, id, type, heading, content, temp, kvps = null) {
     const messageContent = convertImageTags(content); // Convert image tags
-    _drawMessage(messageContainer, heading, messageContent, temp, true, null, ['message-ai', 'message-code-exe']);
+    _drawMessage(messageContainer, heading, messageContent, temp, true, null, [ 'message-ai', 'message-code-exe' ]);
 }
 
 export function drawMessageAgentPlain(classes, messageContainer, id, type, heading, content, temp, kvps = null) {
     const messageContent = convertImageTags(content); // Convert image tags
-    _drawMessage(messageContainer, heading, messageContent, temp, false, null, [...classes]);
+    _drawMessage(messageContainer, heading, messageContent, temp, false, null, [ ...classes ]);
     messageContainer.classList.add('center-container');
 }
 
 export function drawMessageInfo(messageContainer, id, type, heading, content, temp, kvps = null) {
-    return drawMessageAgentPlain(['message-info'], messageContainer, id, type, heading, content, temp, kvps);
+    return drawMessageAgentPlain([ 'message-info' ], messageContainer, id, type, heading, content, temp, kvps);
 }
 
 export function drawMessageUtil(messageContainer, id, type, heading, content, temp, kvps = null) {
     const messageContent = convertImageTags(content); // Convert image tags
-    _drawMessage(messageContainer, heading, messageContent, temp, false, kvps, ['message-util'], ['msg-json']);
+    _drawMessage(messageContainer, heading, messageContent, temp, false, kvps, [ 'message-util' ], [ 'msg-json' ]);
     messageContainer.classList.add('center-container');
 }
 
 export function drawMessageWarning(messageContainer, id, type, heading, content, temp, kvps = null) {
-    return drawMessageAgentPlain(['message-warning'], messageContainer, id, type, heading, content, temp, kvps);
+    return drawMessageAgentPlain([ 'message-warning' ], messageContainer, id, type, heading, content, temp, kvps);
 }
 
 export function drawMessageError(messageContainer, id, type, heading, content, temp, kvps = null) {
-    return drawMessageAgentPlain(['message-error'], messageContainer, id, type, heading, content, temp, kvps);
+    return drawMessageAgentPlain([ 'message-error' ], messageContainer, id, type, heading, content, temp, kvps);
 }
 
 function drawKvps(container, kvps) {
     if (kvps) {
         const table = document.createElement('table');
         table.classList.add('msg-kvps');
-        for (let [key, value] of Object.entries(kvps)) {
+        for (let [ key, value ] of Object.entries(kvps)) {
             const row = table.insertRow();
             row.classList.add('kvps-row');
             if (key === "thoughts" || key === "reflection") row.classList.add('msg-thoughts');

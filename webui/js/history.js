@@ -3,18 +3,18 @@ import { getContext } from "../index.js";
 export async function openHistoryModal() {
     const hist = await window.sendJsonData("/history_get", { context: getContext() });
     const data = JSON.stringify(hist.history, null, 4);
-    const size = hist.tokens
-    await showEditorModal(data, "json", `History ~${size} tokens`,"Conversation history how the agent can see it. History is compressed to fit into the context window.");
+    const size = hist.tokens;
+    await showEditorModal(data, "json", `History ~${size} tokens`, "Conversation history how the agent can see it. History is compressed to fit into the context window.");
 }
 
 export async function openCtxWindowModal() {
     const win = await window.sendJsonData("/ctx_window_get", { context: getContext() });
-    const data = win.content
-    const size = win.tokens
-    await showEditorModal(data, "markdown", `Context window ~${size} tokens`,"Data passed to the LLM during last interaction. Contains system message, conversation history and RAG.");
+    const data = win.content;
+    const size = win.tokens;
+    await showEditorModal(data, "markdown", `Context window ~${size} tokens`, "Data passed to the LLM during last interaction. Contains system message, conversation history and RAG.");
 }
 
-async function showEditorModal(data, type = "json", title, description="") {
+async function showEditorModal(data, type = "json", title, description = "") {
     // Generate the HTML with JSON Viewer container
     const html = `<div id="json-viewer-container"></div>`;
 
@@ -26,7 +26,7 @@ async function showEditorModal(data, type = "json", title, description="") {
     if (container) {
         const editor = ace.edit("json-viewer-container");
 
-        const dark = localStorage.getItem('darkMode')
+        const dark = localStorage.getItem('darkMode');
         if (dark != "false") {
             editor.setTheme("ace/theme/monokai");
         }

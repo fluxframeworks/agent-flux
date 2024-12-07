@@ -81,7 +81,7 @@ class DockerContainerManager:
                 
             else:
                 self.container = existing_container
-                # print(f"Container with name '{self.name}' is already running with ID: {existing_container.id}")
+                # PrintStyle.standard(f"Container with name '{self.name}' is already running with ID: {existing_container.id}")
         else:
             print(f"Initializing docker container {self.name} for safe code execution...")
             if self.logger: self.logger.log(type="info", content=f"Initializing docker container {self.name} for safe code execution...", temp=True)

@@ -31,7 +31,7 @@ const fileBrowserModalProxy = {
     },
 
     isArchive(filename) {
-        const archiveExts = ['zip', 'tar', 'gz', 'rar', '7z'];
+        const archiveExts = [ 'zip', 'tar', 'gz', 'rar', '7z' ];
         const ext = filename.split('.').pop().toLowerCase();
         return archiveExts.includes(ext);
     },
@@ -75,7 +75,7 @@ const fileBrowserModalProxy = {
     },
 
     sortFiles(entries) {
-        return [...entries].sort((a, b) => {
+        return [ ...entries ].sort((a, b) => {
             // Folders always come first
             if (a.is_dir !== b.is_dir) {
                 return a.is_dir ? -1 : 1;
@@ -143,14 +143,14 @@ const fileBrowserModalProxy = {
             formData.append('path', this.browser.currentPath);
 
             for (let i = 0; i < files.length; i++) {
-                const ext = files[i].name.split('.').pop().toLowerCase();
-                if (!['zip', 'tar', 'gz', 'rar', '7z'].includes(ext)) {
-                    if (files[i].size > 100 * 1024 * 1024) { // 100MB
-                        alert(`File ${files[i].name} exceeds the maximum allowed size of 100MB.`);
+                const ext = files[ i ].name.split('.').pop().toLowerCase();
+                if (![ 'zip', 'tar', 'gz', 'rar', '7z' ].includes(ext)) {
+                    if (files[ i ].size > 100 * 1024 * 1024) { // 100MB
+                        alert(`File ${files[ i ].name} exceeds the maximum allowed size of 100MB.`);
                         continue;
                     }
                 }
-                formData.append('files[]', files[i]);
+                formData.append('files[]', files[ i ]);
             }
 
             // Proceed with upload after validation
@@ -192,7 +192,7 @@ const fileBrowserModalProxy = {
 
             const downloadUrl = `/download_work_dir_file?path=${encodeURIComponent(file.path)}`;
 
-            const response = await fetch(downloadUrl)
+            const response = await fetch(downloadUrl);
 
 
             if (!response.ok) {
@@ -220,9 +220,9 @@ const fileBrowserModalProxy = {
     formatFileSize(size) {
         if (size === 0) return '0 Bytes';
         const k = 1024;
-        const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+        const sizes = [ 'Bytes', 'KB', 'MB', 'GB', 'TB' ];
         const i = Math.floor(Math.log(size) / Math.log(k));
-        return parseFloat((size / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        return parseFloat((size / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[ i ];
     },
 
     formatDate(dateString) {

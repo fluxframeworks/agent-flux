@@ -1,5 +1,5 @@
 // import { pipeline, read_audio } from '../transformers@3.0.2.js';
-import { updateChatInput, sendMessage } from '../index.js';
+import { sendMessage, updateChatInput } from '../index.js';
 
 const microphoneButton = document.getElementById('microphone-button');
 let microphoneInput = null;
@@ -204,7 +204,7 @@ class MicrophoneInput {
             // Calculate RMS volume
             let sum = 0;
             for (let i = 0; i < dataArray.length; i++) {
-                const amplitude = (dataArray[i] - 128) / 128;
+                const amplitude = (dataArray[ i ] - 128) / 128;
                 sum += amplitude * amplitude;
             }
             const rms = Math.sqrt(sum / dataArray.length);
@@ -251,14 +251,14 @@ class MicrophoneInput {
         }
 
         const audioBlob = new Blob(this.audioChunks, { type: 'audio/wav' });
-        const base64 = await this.convertBlobToBase64Wav(audioBlob)
+        const base64 = await this.convertBlobToBase64Wav(audioBlob);
 
         try {
 
-            const result = await sendJsonData('/transcribe', { audio: base64 })
+            const result = await sendJsonData('/transcribe', { audio: base64 });
 
 
-            const text = this.filterResult(result.text || "")
+            const text = this.filterResult(result.text || "");
 
             if (text) {
                 console.log('Transcription:', result.text);
@@ -279,7 +279,7 @@ class MicrophoneInput {
 
             // Read the Blob as a Data URL
             reader.onloadend = () => {
-                const base64Data = reader.result.split(",")[1]; // Extract Base64 data
+                const base64Data = reader.result.split(",")[ 1 ]; // Extract Base64 data
                 resolve(base64Data);
             };
 
@@ -292,17 +292,17 @@ class MicrophoneInput {
     }
 
     filterResult(text) {
-        text = text.trim()
-        let ok = false
+        text = text.trim();
+        let ok = false;
         while (!ok) {
-            if (!text) break
-            if (text[0] === '{' && text[text.length - 1] === '}') break
-            if (text[0] === '(' && text[text.length - 1] === ')') break
-            if (text[0] === '[' && text[text.length - 1] === ']') break
-            ok = true
+            if (!text) break;
+            if (text[ 0 ] === '{' && text[ text.length - 1 ] === '}') break;
+            if (text[ 0 ] === '(' && text[ text.length - 1 ] === ')') break;
+            if (text[ 0 ] === '[' && text[ text.length - 1 ] === ']') break;
+            ok = true;
         }
-        if (ok) return text
-        else console.log(`Discarding transcription: ${text}`)
+        if (ok) return text;
+        else console.log(`Discarding transcription: ${text}`);
     }
 }
 
@@ -397,20 +397,20 @@ class Speech {
     }
 
     replaceURLs(text) {
-        const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])|(\b(www\.)[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])|(\b[-A-Z0-9+&@#\/%?=~_|!:,.;]*\.(?:[A-Z]{2,})[-A-Z0-9+&@#\/%?=~_|])/ig;        return text.replace(urlRegex, (url) => {
-            let text = url
+        const urlRegex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])|(\b(www\.)[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])|(\b[-A-Z0-9+&@#\/%?=~_|!:,.;]*\.(?:[A-Z]{2,})[-A-Z0-9+&@#\/%?=~_|])/ig; return text.replace(urlRegex, (url) => {
+            let text = url;
             // if contains ://, split by it
-            if (text.includes('://')) text = text.split('://')[1];
+            if (text.includes('://')) text = text.split('://')[ 1 ];
             // if contains /, split by it
-            if (text.includes('/')) text = text.split('/')[0];
+            if (text.includes('/')) text = text.split('/')[ 0 ];
 
             // if contains ., split by it
             if (text.includes('.')) {
-                const doms = text.split('.')
+                const doms = text.split('.');
                 //up to last two
-                return doms[doms.length - 2] + '.' + doms[doms.length - 1]
+                return doms[ doms.length - 2 ] + '.' + doms[ doms.length - 1 ];
             } else {
-                return text
+                return text;
             }
         });
     }
@@ -429,7 +429,7 @@ class Speech {
         text = text.replace(longStringRegex, (match) => {
             return ``;
         });
-        return text
+        return text;
     }
 
     stop() {
@@ -444,4 +444,4 @@ class Speech {
 }
 
 export const speech = new Speech();
-window.speech = speech
+window.speech = speech;

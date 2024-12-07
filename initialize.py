@@ -1,3 +1,4 @@
+import asyncio
 import models
 from agent import AgentConfig
 from python.helpers import files, runtime, settings
@@ -64,9 +65,9 @@ def initialize():
         #                         },
         # code_exec_ssh_enabled = True,
         # code_exec_ssh_addr = "localhost",
-        # code_exec_ssh_port = 50022,
+        # code_exec_ssh_port = 55022,
         # code_exec_ssh_user = "root",
-        # code_exec_ssh_pass = "toor",
+        # code_exec_ssh_pass = "",
         # additional = {},
     )
 
@@ -95,3 +96,47 @@ def initialize():
 
     # return config object
     return config
+
+
+def args_override(config):
+    # update config with runtime args
+    for key, value in runtime.args.items():
+        if hasattr(config, key):
+            # conversion based on type of config[key]
+            if isinstance(getattr(config, key), bool):
+                value = value.lower().strip() == "true"
+            elif isinstance(getattr(config, key), int):
+                value = int(value)
+            elif isinstance(getattr(config, key), float):
+                value = float(value)
+            elif isinstance(getattr(config, key), str):
+                value = str(value)
+            else:
+                raise Exception(
+                    f"Unsupported argument type of '{key}': {type(getattr(config, key))}"
+                )
+
+            setattr(config, key, value)
+
+
+def set_runtime_config(config: AgentConfig, set: settings.Settings):
+    ssh_conf = settings.get_runtime_config(set)
+    for key, value in ssh_conf.items():
+        if hasattr(config, key):
+            setattr(config, key, value)
+
+    # if config.code_exec_docker_enabled:
+    #     config.code_exec_docker_ports["22/tcp"] = ssh_conf["code_exec_ssh_port"]
+    #     config.code_exec_docker_ports["80/tcp"] = ssh_conf["code_exec_http_port"]
+    #     config.code_exec_docker_name = f"{config.code_exec_docker_name}-{ssh_conf['code_exec_ssh_port']}-{ssh_conf['code_exec_http_port']}"
+
+    #     dman = docker.DockerContainerManager(
+    #         logger=log.Log(),
+    #         name=config.code_exec_docker_name,
+    #         image=config.code_exec_docker_image,
+    #         ports=config.code_exec_docker_ports,
+    #         volumes=config.code_exec_docker_volumes,
+    #     )
+    #     dman.start_container()
+
+    # config.code_exec_ssh_pass = asyncio.run(rfc_exchange.get_root_password())

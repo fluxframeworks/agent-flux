@@ -7,15 +7,15 @@ const genericModalProxy = {
         const modalAD = Alpine.$data(modalEl);
 
         modalAD.isOpen = true;
-        modalAD.title = title
-        modalAD.description = description
-        modalAD.html = html
+        modalAD.title = title;
+        modalAD.description = description;
+        modalAD.html = html;
     },
 
     handleClose() {
         this.isOpen = false;
     }
-}
+};
 
 // Wait for Alpine to be ready
 document.addEventListener('alpine:init', () => {
@@ -24,7 +24,7 @@ document.addEventListener('alpine:init', () => {
             Object.assign(this, genericModalProxy);
             // Ensure immediate file fetch when modal opens
             this.$watch('isOpen', async (value) => {
-               // what now?
+                // what now?
             });
         }
     }));

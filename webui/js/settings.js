@@ -28,7 +28,7 @@ const settingsModalProxy = {
                 }
             ],
             "sections": set.settings.sections
-        }
+        };
 
         modalAD.isOpen = true; // Update directly
         modalAD.settings = settings; // Update directly
@@ -86,15 +86,15 @@ const settingsModalProxy = {
 // });
 
 function getIconName(title) {
-  const iconMap = {
-    'Agent Config': 'agentconfig',
-    'Chat Model': 'chat-model',
-    'Utility model': 'utility-model',
-    'Embedding Model': 'embed-model',
-    'API Keys': 'api-keys',
-    'Authentication': 'auth',
-    'Development': 'dev'
-  };
-  return iconMap[title] || 'default';
+    const iconMap = {
+        'Agent Config': 'agentconfig',
+        'Chat Model': 'chat-model',
+        'Utility model': 'utility-model',
+        'Embedding Model': 'embed-model',
+        'API Keys': 'api-keys',
+        'Authentication': 'auth',
+        'Development': 'dev'
+    };
+    return iconMap[ title ] || 'default';
 }
 

@@ -1,4 +1,4 @@
-from agent import Agent
+from agent import Agent, UserMessage
 from python.helpers.tool import Tool, Response
 
 

@@ -15,6 +15,8 @@ const autoScrollSwitch = document.getElementById('auto-scroll-switch');
 
 let autoScroll = true;
 let context = "";
+let connectionStatus = false;
+
 
 // Initialize the toggle button 
 setupSidebarToggle();
@@ -111,7 +113,7 @@ export async function sendMessage() {
                 formData.append('message_id', messageId);
 
                 for (let i = 0; i < attachments.length; i++) {
-                    formData.append('attachments', attachments[i].file);
+                    formData.append('attachments', attachments[ i ].file);
                 }
 
                 response = await fetch('/message_async', {
@@ -160,6 +162,16 @@ export async function sendMessage() {
         toast(e.message, "error");
     }
 }
+
+function toastFetchError(text, error) {
+    if (getConnectionStatus()) {
+        toast(`${text}: ${error.message}`, "error");
+    } else {
+        toast(`${text} (it seems the backend is not running): ${error.message}`, "error");
+    }
+    console.error(text, error);
+}
+window.toastFetchError = toastFetchError;
 
 chatInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -268,7 +280,7 @@ window.loadKnowledge = async function () {
     };
 
     input.click();
-}
+};
 
 
 function adjustTextareaHeight() {
@@ -291,8 +303,8 @@ export const sendJsonData = async function (url, data) {
     }
     const jsonResponse = await response.json();
     return jsonResponse;
-}
-window.sendJsonData = sendJsonData
+};
+window.sendJsonData = sendJsonData;
 
 function generateGUID() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -302,34 +314,44 @@ function generateGUID() {
     });
 }
 
+function getConnectionStatus() {
+    return connectionStatus;
+}
+
+function setConnectionStatus(connected) {
+    connectionStatus = connected;
+    const statusIcon = Alpine.$data(timeDate.querySelector('.status-icon'));
+    statusIcon.connected = connected;
+}
+
 let lastLogVersion = 0;
-let lastLogGuid = ""
-let lastSpokenNo = 0
+let lastLogGuid = "";
+let lastSpokenNo = 0;
 
 async function poll() {
-    let updated = false
+    let updated = false;
     try {
         const response = await sendJsonData("/poll", { log_from: lastLogVersion, context });
         //console.log(response)
 
-        if (!context) setContext(response.context)
-        if (response.context != context) return //skip late polls after context change
+        if (!context) setContext(response.context);
+        if (response.context != context) return; //skip late polls after context change
 
         if (lastLogGuid != response.log_guid) {
-            chatHistory.innerHTML = ""
-            lastLogVersion = 0
+            chatHistory.innerHTML = "";
+            lastLogVersion = 0;
         }
 
         if (lastLogVersion != response.log_version) {
-            updated = true
+            updated = true;
             for (const log of response.logs) {
                 const messageId = log.id || log.no; // Use log.id if available
                 setMessage(messageId, log.type, log.heading, log.content, log.temp, log.kvps);
             }
-            afterMessagesUpdate(response.logs)
+            afterMessagesUpdate(response.logs);
         }
 
-        updateProgress(response.log_progress)
+        updateProgress(response.log_progress);
 
         //set ui model vars from backend
         const inputAD = Alpine.$data(inputSection);
@@ -338,8 +360,8 @@ async function poll() {
         // Update status icon state
         const timeDate = document.getElementById('time-date-container');
         if (timeDate) {
-        const statusIcon = Alpine.$data(timeDate.querySelector('.status-icon'));
-        statusIcon.connected = true;
+            const statusIcon = Alpine.$data(timeDate.querySelector('.status-icon'));
+            statusIcon.connected = true;
         }
 
         const chatsAD = Alpine.$data(chatsSection);
@@ -357,135 +379,141 @@ async function poll() {
         }
     }
 
-    return updated
+    return updated;
 }
 
 function afterMessagesUpdate(logs) {
     if (localStorage.getItem('speech') == 'true') {
-        speakMessages(logs)
+        speakMessages(logs);
     }
 }
 
 function speakMessages(logs) {
     // log.no, log.type, log.heading, log.content
     for (let i = logs.length - 1; i >= 0; i--) {
-        const log = logs[i]
+        const log = logs[ i ];
         if (log.type == "response") {
             if (log.no > lastSpokenNo) {
-                lastSpokenNo = log.no
-                speech.speak(log.content)
-                return
+                lastSpokenNo = log.no;
+                speech.speak(log.content);
+                return;
             }
         }
     }
 }
 
 function updateProgress(progress) {
-    const defaultText = "Waiting for input"
-    if (!progress) progress = defaultText
+    const defaultText = "Waiting for input";
+    if (!progress) progress = defaultText;
 
     if (progress == defaultText) {
-        removeClassFromElement(progressBar, "shiny-text")
+        removeClassFromElement(progressBar, "shiny-text");
     } else {
-        addClassToElement(progressBar, "shiny-text")
+        addClassToElement(progressBar, "shiny-text");
     }
 
     if (progressBar.innerHTML != progress) {
-        progressBar.innerHTML = progress
-    }
-}
-
-function updatePauseButtonState(isPaused) {
-    const pauseButton = document.getElementById('pause-button');
-    const unpauseButton = document.getElementById('unpause-button');
-
-    if (isPaused) {
-        pauseButton.style.display = 'none';
-        unpauseButton.style.display = 'flex';
-    } else {
-        pauseButton.style.display = 'flex';
-        unpauseButton.style.display = 'none';
+        progressBar.innerHTML = progress;
     }
 }
 
 window.pauseAgent = async function (paused) {
-    const resp = await sendJsonData("/pause", { paused: paused, context });
-    updatePauseButtonState(paused);
-}
+    try {
+        const resp = await sendJsonData("/pause", { paused: paused, context });
+    } catch (e) {
+        window.toastFetchError("Error pausing agent", e);
+    }
+};
 
 window.resetChat = async function () {
     const resp = await sendJsonData("/chat_reset", { context });
-    updateAfterScroll()
-}
+    updateAfterScroll();
+};
 
 window.newChat = async function () {
-    setContext(generateGUID());
-    updateAfterScroll()
-}
+    try {
+        setContext(generateGUID());
+        updateAfterScroll();
+    } catch (e) {
+        window.toastFetchError("Error creating new chat", e);
+    }
+};
 
 window.killChat = async function (id) {
-
-
-    const chatsAD = Alpine.$data(chatsSection);
-    let found, other
-    for (let i = 0; i < chatsAD.contexts.length; i++) {
-        if (chatsAD.contexts[i].id == id) {
-            found = true
-        } else {
-            other = chatsAD.contexts[i]
+    try {
+        const chatsAD = Alpine.$data(chatsSection);
+        let found, other;
+        for (let i = 0; i < chatsAD.contexts.length; i++) {
+            if (chatsAD.contexts[ i ].id == id) {
+                found = true;
+            } else {
+                other = chatsAD.contexts[ i ];
+            }
+            if (found && other) break;
         }
-        if (found && other) break
+
+        if (context == id && found) {
+            if (other) setContext(other.id);
+            else setContext(generateGUID());
+        }
+
+        if (found) sendJsonData("/chat_remove", { context: id });
+
+        updateAfterScroll();
+
+    } catch (e) {
+        window.toastFetchError("Error creating new chat", e);
     }
 
     if (context == id && found) {
-        if (other) setContext(other.id)
-        else setContext(generateGUID())
+        if (other) setContext(other.id);
+        else setContext(generateGUID());
     }
 
     if (found) sendJsonData("/chat_remove", { context: id });
 
-    updateAfterScroll()
-}
+    updateAfterScroll();
+};
 
 window.selectChat = async function (id) {
-    setContext(id)
-    updateAfterScroll()
-}
+    setContext(id);
+    updateAfterScroll();
+};
 
 export const setContext = function (id) {
-    if (id == context) return
-    context = id
-    lastLogGuid = ""
-    lastLogVersion = 0
-    lastSpokenNo = 0
+    if (id == context) return;
+    context = id;
+    lastLogGuid = "";
+    lastLogVersion = 0;
+    lastSpokenNo = 0;
     const chatsAD = Alpine.$data(chatsSection);
-    chatsAD.selected = id
-}
+    chatsAD.selected = id;
+};
 
 export const getContext = function () {
-    return context
-}
+    return context;
+};
 
 window.toggleAutoScroll = async function (_autoScroll) {
     autoScroll = _autoScroll;
-}
+};
 
 window.toggleJson = async function (showJson) {
     // add display:none to .msg-json class definition
     toggleCssProperty('.msg-json', 'display', showJson ? 'block' : 'none');
-}
+};
 
 window.toggleThoughts = async function (showThoughts) {
     // add display:none to .msg-json class definition
     toggleCssProperty('.msg-thoughts', 'display', showThoughts ? undefined : 'none');
-}
+};
 
 window.toggleUtils = async function (showUtils) {
     // add display:none to .msg-json class definition
     toggleCssProperty('.message-util', 'display', showUtils ? undefined : 'none');
     // toggleCssProperty('.message-util .msg-kvps', 'display', showUtils ? undefined : 'none');
     // toggleCssProperty('.message-util .msg-content', 'display', showUtils ? undefined : 'none');
-}
+};
 
 window.toggleDarkMode = function (isDark) {
     if (isDark) {
@@ -500,7 +528,7 @@ window.toggleDarkMode = function (isDark) {
 window.toggleSpeech = function (isOn) {
     console.log("Speech:", isOn);
     localStorage.setItem('speech', isOn);
-    if (!isOn) speech.stop()
+    if (!isOn) speech.stop();
 };
 
 // Modify this part
@@ -525,11 +553,11 @@ function toggleCssProperty(selector, property, value) {
 
     // Iterate through all stylesheets to find the class
     for (let i = 0; i < styleSheets.length; i++) {
-        const styleSheet = styleSheets[i];
+        const styleSheet = styleSheets[ i ];
         const rules = styleSheet.cssRules || styleSheet.rules;
 
         for (let j = 0; j < rules.length; j++) {
-            const rule = rules[j];
+            const rule = rules[ j ];
             if (rule.selectorText == selector) {
                 // Check if the property is already applied
                 if (value === undefined) {
@@ -549,7 +577,7 @@ window.loadChats = async function () {
         const response = await sendJsonData("/chat_load", { chats: fileContents });
 
         if (!response) {
-            toast("No response returned.", "error")
+            toast("No response returned.", "error");
         }
         // else if (!response.ok) {
         //     if (response.message) {
@@ -559,21 +587,21 @@ window.loadChats = async function () {
         //     }
         // } 
         else {
-            setContext(response.ctxids[0])
-            toast("Chats loaded.", "success")
+            setContext(response.ctxids[ 0 ]);
+            toast("Chats loaded.", "success");
         }
 
     } catch (e) {
-        toast(e.message, "error")
+        toastFetchError("Error loading chats", e);
     }
-}
+};
 
 window.saveChat = async function () {
     try {
         const response = await sendJsonData("/chat_export", { ctxid: context });
 
         if (!response) {
-            toast("No response returned.", "error")
+            toast("No response returned.", "error");
         }
         //  else if (!response.ok) {
         //     if (response.message) {
@@ -583,18 +611,18 @@ window.saveChat = async function () {
         //     }
         // }
         else {
-            downloadFile(response.ctxid + ".json", response.content)
-            toast("Chat file downloaded.", "success")
+            downloadFile(response.ctxid + ".json", response.content);
+            toast("Chat file downloaded.", "success");
         }
 
     } catch (e) {
-        toast(e.message, "error")
+        toastFetchError("Error saving chat", e);
     }
-}
+};
 
 function downloadFile(filename, content) {
     // Create a Blob with the content to save
-    const blob = new Blob([content], { type: 'application/json' });
+    const blob = new Blob([ content ], { type: 'application/json' });
 
     // Create a link element
     const link = document.createElement('a');
@@ -664,43 +692,104 @@ function removeClassFromElement(element, className) {
 }
 
 
-function toast(text, type = 'info') {
+function removeClassFromElement(element, className) {
+    element.classList.remove(className);
+}
+
+
+function toast(text, type = 'info', timeout = 5000) {
+    const toast = document.getElementById('toast');
+    const isVisible = toast.classList.contains('show');
+
+    // Clear any existing timeout immediately
+    if (toast.timeoutId) {
+        clearTimeout(toast.timeoutId);
+        toast.timeoutId = null;
+    }
+
+    // Function to update toast content and show it
+    const updateAndShowToast = () => {
+        // Update the toast content and type
+        const title = type.charAt(0).toUpperCase() + type.slice(1);
+        toast.querySelector('.toast__title').textContent = title;
+        toast.querySelector('.toast__message').textContent = text;
+
+        // Remove old classes and add new ones
+        toast.classList.remove('toast--success', 'toast--error', 'toast--info');
+        toast.classList.add(`toast--${type}`);
+
+        // Show/hide copy button based on toast type
+        const copyButton = toast.querySelector('.toast__copy');
+        copyButton.style.display = type === 'error' ? 'inline-block' : 'none';
+
+        // Add the close button event listener
+        const closeButton = document.querySelector('.toast__close');
+        closeButton.onclick = () => {
+            hideToast();
+        };
+
+        // Add the copy button event listener
+        copyButton.onclick = () => {
+            navigator.clipboard.writeText(text);
+            copyButton.textContent = 'Copied!';
+            setTimeout(() => {
+                copyButton.textContent = 'Copy';
+            }, 2000);
+        };
+
+        // Show the toast
+        toast.style.display = 'flex';
+        // Force a reflow to ensure the animation triggers
+        void toast.offsetWidth;
+        toast.classList.add('show');
+
+        // Set timeout if specified
+        if (timeout) {
+            const minTimeout = Math.max(timeout, 5000);
+            toast.timeoutId = setTimeout(() => {
+                hideToast();
+            }, minTimeout);
+        }
+    };
+
+    if (isVisible) {
+        // If a toast is visible, hide it first then show the new one
+        toast.classList.remove('show');
+        toast.classList.add('hide');
+
+        // Wait for hide animation to complete before showing new toast
+        setTimeout(() => {
+            toast.classList.remove('hide');
+            updateAndShowToast();
+        }, 400); // Match this with CSS transition duration
+    } else {
+        // If no toast is visible, show the new one immediately
+        updateAndShowToast();
+    }
+}
+
+function hideToast() {
     const toast = document.getElementById('toast');
 
-    // Update the toast content and type
-    toast.querySelector('#toast .toast__message').textContent = text;
-    toast.className = `toast toast--${type}`;
-    toast.style.display = 'flex';
-
-    // Add the close button event listener
-    const closeButton = toast.querySelector('#toast .toast__close');
-    closeButton.onclick = () => {
-        toast.style.display = 'none';
-        clearTimeout(toast.timeoutId);
-    };
-
-    // Add the copy button event listener
-    const copyButton = toast.querySelector('#toast .toast__copy');
-    copyButton.onclick = () => {
-        navigator.clipboard.writeText(text);
-        copyButton.textContent = 'Copied!';
-        setTimeout(() => {
-            copyButton.textContent = 'Copy';
-        }, 2000);
-    };
-
     // Clear any existing timeout
-    clearTimeout(toast.timeoutId);
+    if (toast.timeoutId) {
+        clearTimeout(toast.timeoutId);
+        toast.timeoutId = null;
+    }
 
-    // Automatically close the toast after 5 seconds
-    toast.timeoutId = setTimeout(() => {
+    toast.classList.remove('show');
+    toast.classList.add('hide');
+
+    // Wait for the hide animation to complete before removing from display
+    setTimeout(() => {
         toast.style.display = 'none';
-    }, 10000);
+        toast.classList.remove('hide');
+    }, 400); // Match this with CSS transition duration
 }
 
 function scrollChanged(isAtBottom) {
     const inputAS = Alpine.$data(autoScrollSwitch);
-    inputAS.autoScroll = isAtBottom
+    inputAS.autoScroll = isAtBottom;
     // autoScrollSwitch.checked = isAtBottom
 }
 
@@ -721,13 +810,13 @@ chatInput.addEventListener('input', adjustTextareaHeight);
 // setInterval(poll, 250);
 
 async function startPolling() {
-    const shortInterval = 25
-    const longInterval = 250
-    const shortIntervalPeriod = 100
-    let shortIntervalCount = 0
+    const shortInterval = 25;
+    const longInterval = 250;
+    const shortIntervalPeriod = 100;
+    let shortIntervalCount = 0;
 
     async function _doPoll() {
-        let nextInterval = longInterval
+        let nextInterval = longInterval;
 
         try {
             const result = await poll();
