@@ -263,27 +263,27 @@ window.loadKnowledge = async function () {
     input.multiple = true;
 
     input.onchange = async () => {
-        try{
-        const formData = new FormData();
-        for (let file of input.files) {
-            formData.append('files[]', file);
-        }
+        try {
+            const formData = new FormData();
+            for (let file of input.files) {
+                formData.append('files[]', file);
+            }
 
-        formData.append('ctxid', getContext());
+            formData.append('ctxid', getContext());
 
-        const response = await fetch('/import_knowledge', {
-            method: 'POST',
-            body: formData,
-        });
+            const response = await fetch('/import_knowledge', {
+                method: 'POST',
+                body: formData,
+            });
 
-        if (!response.ok) {
-            toast(await response.text(), "error");
-        } else {
-            const data = await response.json();
-            toast("Knowledge files imported: " + data.filenames.join(", "), "success");
-        }
+            if (!response.ok) {
+                toast(await response.text(), "error");
+            } else {
+                const data = await response.json();
+                toast("Knowledge files imported: " + data.filenames.join(", "), "success");
+            }
         } catch (e) {
-            toastFetchError("Error loading knowledge", e)
+            toastFetchError("Error loading knowledge", e);
         }
     };
 
@@ -870,7 +870,6 @@ setTimeout(() => {
     toast.style.display = 'none';
     toast.classList.remove('hide');
 }, 400); // Match this with CSS transition duration
-}
 
 function hideToast() {
     const toast = document.getElementById('toast');
