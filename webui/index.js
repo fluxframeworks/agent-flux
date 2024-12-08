@@ -266,6 +266,8 @@ window.loadKnowledge = async function () {
             formData.append('files[]', file);
         }
 
+        formData.append('ctxid', getContext());
+
         const response = await fetch('/import_knowledge', {
             method: 'POST',
             body: formData,

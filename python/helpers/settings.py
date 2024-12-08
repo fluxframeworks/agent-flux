@@ -557,7 +557,7 @@ def _get_default_settings() -> Settings:
         chat_model_temperature=0,
         chat_model_kwargs={},
         chat_model_ctx_length=8192,
-        chat_model_ctx_history=0.65,
+        chat_model_ctx_history=0.7,
         util_model_provider=ModelProvider.OPENAI.name,
         util_model_name="gpt-4o-mini",
         util_model_temperature=0,
