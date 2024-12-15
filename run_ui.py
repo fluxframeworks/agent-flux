@@ -84,7 +84,7 @@ def run():
     # initialize contexts from persisted chats
     persist_chat.load_tmp_chats()
 
-    def register_api_handler(app, handler):
+    def register_api_handler(app, handler: type[ApiHandler]):
         name = handler.__module__.split(".")[-1]
         instance = handler(app, lock)
         @requires_auth

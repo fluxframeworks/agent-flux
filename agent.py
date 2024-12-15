@@ -2,8 +2,12 @@ import asyncio
 from collections import OrderedDict
 from dataclasses import dataclass, field
 import time, importlib, inspect, os, json
-from typing import Any, Optional, Dict, TypedDict
+import token
+from typing import Any, Awaitable, Optional, Dict, TypedDict
 import uuid
+import models
+
+from langchain_core.prompt_values import ChatPromptValue
 from python.helpers import extract_tools, rate_limiter, files, errors, history, tokens
 from python.helpers.print_style import PrintStyle
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -130,18 +134,24 @@ class AgentContext:
 
 
 @dataclass
+class ModelConfig:
+    provider: models.ModelProvider
+    name: str
+    ctx_length: int
+    limit_requests: int
+    limit_input: int
+    limit_output: int
+    kwargs: dict
+
+
+@dataclass
 class AgentConfig:
-    chat_model: BaseChatModel | BaseLLM
-    utility_model: BaseChatModel | BaseLLM
-    embeddings_model: Embeddings
+    chat_model: ModelConfig
+    utility_model: ModelConfig
+    embeddings_model: ModelConfig
     prompts_subdir: str = ""
     memory_subdir: str = ""
     knowledge_subdirs: list[str] = field(default_factory=lambda: ["default", "custom"])
-    rate_limit_seconds: int = 60
-    rate_limit_requests: int = 15
-    rate_limit_input_tokens: int = 0
-    rate_limit_output_tokens: int = 0
-    response_timeout_seconds: int = 60
     code_exec_docker_enabled: bool = False
     code_exec_docker_name: str = "A0-dev"
     code_exec_docker_image: str = "fluxframeworks/agent-flux-run:development"
@@ -248,7 +258,6 @@ class Agent:
                 while True:
 
                     self.context.streaming_agent = self  # mark self as current streamer
-                    agent_response = ""
                     self.loop_data.iteration += 1
 
                     try:
@@ -301,23 +310,12 @@ class Agent:
                             # wait for intervention and handle it, if paused
                             await self.handle_intervention(agent_response)
 
-                            if isinstance(chunk, str):
-                                content = chunk
-                            elif hasattr(chunk, "content"):
-                                content = str(chunk.content)
-                            else:
-                                content = str(chunk)
+                        # store as last context window content
+                        self.set_data(Agent.DATA_NAME_CTX_WINDOW, prompt.format())
 
-                            if content:
-                                # output the agent response stream
-                                printer.stream(content)
-                                # concatenate stream into the response
-                                agent_response += content
-                                self.log_from_stream(agent_response, log)
-
-                        self.rate_limiter.set_output_tokens(
-                            int(len(agent_response) / 4)
-                        )  # rough estimation
+                        agent_response = await self.call_chat_model(
+                            prompt, callback=stream_callback
+                        )
 
                         await self.handle_intervention(agent_response)
 
@@ -345,14 +343,14 @@ class Agent:
                     # exceptions inside message loop:
                     except InterventionException as e:
                         pass  # intervention message has been handled in handle_intervention(), proceed with conversation loop
-                    except (
-                        RepairableException
-                    ) as e:  # Forward repairable errors to the LLM, maybe it can fix them
+                    except RepairableException as e:
+                        # Forward repairable errors to the LLM, maybe it can fix them
                         error_message = errors.format_error(e)
                         await self.hist_add_warning(error_message)
                         PrintStyle(font_color="red", padding=True).print(error_message)
                         self.context.log.log(type="error", content=error_message)
-                    except Exception as e:  # Other exception kill the loop
+                    except Exception as e:
+                        # Other exception kill the loop
                         self.handle_critical_exception(e)
 
                     finally:
@@ -464,36 +462,41 @@ class Agent:
     ):  # TODO add param for message range, topic, history
         return self.history.output_text(human_label="user", ai_label="assistant")
 
-    async def call_utility_llm(
-        self, system: str, msg: str, callback: Callable[[str], None] | None = None
+    async def call_utility_model(
+        self,
+        system: str,
+        message: str,
+        callback: Callable[[str], Awaitable[None]] | None = None,
+        background: bool = False,
     ):
         prompt = ChatPromptTemplate.from_messages(
-            [SystemMessage(content=system), HumanMessage(content=msg)]
+            [SystemMessage(content=system), HumanMessage(content=message)]
         )
 
-        chain = prompt | self.config.utility_model
         response = ""
 
-        formatted_inputs = prompt.format()
-        token_count = tokens.approximate_tokens(formatted_inputs)
-        self.rate_limiter.limit_call_and_input(token_count)
+        # model class
+        model = models.get_model(
+            models.ModelType.CHAT,
+            self.config.utility_model.provider,
+            self.config.utility_model.name,
+            **self.config.utility_model.kwargs,
+        )
 
-        async for chunk in chain.astream({}):
+        # rate limiter
+        limiter = await self.rate_limiter(
+            self.config.utility_model, prompt.format(), background
+        )
+
+        async for chunk in (prompt | model).astream({}):
             await self.handle_intervention()  # wait for intervention and handle it, if paused
 
-            if isinstance(chunk, str):
-                content = chunk
-            elif hasattr(chunk, "content"):
-                content = str(chunk.content)
-            else:
-                content = str(chunk)
-
-            if callback:
-                callback(content)
-
+            content = models.parse_chunk(chunk)
+            limiter.add(output=tokens.approximate_tokens(content))
             response += content
 
-        self.rate_limiter.set_output_tokens(int(len(response) / 4))
+            if callback:
+                await callback(content)
 
         return response
 

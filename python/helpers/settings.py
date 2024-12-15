@@ -5,10 +5,6 @@ from typing import Any, Literal, Optional, TypedDict
 
 import models
 from . import files, dotenv
-from models import get_model, ModelProvider, ModelType
-from langchain_core.language_models.chat_models import BaseChatModel
-from langchain_core.embeddings import Embeddings
-
 
 class Settings(TypedDict):
     chat_model_provider: str
@@ -17,15 +13,26 @@ class Settings(TypedDict):
     chat_model_kwargs: dict[str, str]
     chat_model_ctx_length: int
     chat_model_ctx_history: float
+    chat_model_rl_requests: int
+    chat_model_rl_input: int
+    chat_model_rl_output: int
 
     util_model_provider: str
     util_model_name: str
     util_model_temperature: float
     util_model_kwargs: dict[str, str]
+    util_model_ctx_length: int
+    util_model_ctx_input: float
+    util_model_rl_requests: int
+    util_model_rl_input: int
+    util_model_rl_output: int
 
+        
     embed_model_provider: str
     embed_model_name: str
     embed_model_kwargs: dict[str, str]
+    embed_model_rl_requests: int
+    embed_model_rl_input: int
 
     agent_prompts_subdir: str
     agent_memory_subdir: str
@@ -53,7 +60,7 @@ class SettingsField(TypedDict, total=False):
     id: str
     title: str
     description: str
-    type: Literal["input", "select", "range", "textarea", "password"]
+    type: Literal["text", "number", "select", "range", "textarea", "password"]
     value: Any
     min: float
     max: float
@@ -76,6 +83,8 @@ _settings: Settings | None = None
 
 
 def convert_out(settings: Settings) -> SettingsOutput:
+    from models import ModelProvider
+
 
     # main model section
     chat_model_fields: list[SettingsField] = []
@@ -94,7 +103,7 @@ def convert_out(settings: Settings) -> SettingsOutput:
             "id": "chat_model_name",
             "title": "Chat model name",
             "description": "Exact name of model from selected provider",
-            "type": "input",
+            "type": "text",
             "value": settings["chat_model_name"],
         }
     )
@@ -117,7 +126,7 @@ def convert_out(settings: Settings) -> SettingsOutput:
             "id": "chat_model_ctx_length",
             "title": "Chat model context length",
             "description": "Maximum number of tokens in the context window for LLM. System prompt, chat history, RAG and response all count towards this limit.",
-            "type": "input",
+            "type": "number",
             "value": settings["chat_model_ctx_length"],
         }
     )
@@ -132,6 +141,36 @@ def convert_out(settings: Settings) -> SettingsOutput:
             "max": 1,
             "step": 0.01,
             "value": settings["chat_model_ctx_history"],
+        }
+    )
+
+    chat_model_fields.append(
+        {
+            "id": "chat_model_rl_requests",
+            "title": "Requests per minute limit",
+            "description": "Limits the number of requests per minute to the chat model. Waits if the limit is exceeded. Set to 0 to disable rate limiting.",
+            "type": "number",
+            "value": settings["chat_model_rl_requests"],
+        }
+    )
+
+    chat_model_fields.append(
+        {
+            "id": "chat_model_rl_input",
+            "title": "Input tokens per minute limit",
+            "description": "Limits the number of input tokens per minute to the chat model. Waits if the limit is exceeded. Set to 0 to disable rate limiting.",
+            "type": "number",
+            "value": settings["chat_model_rl_input"],
+        }
+    )
+
+    chat_model_fields.append(
+        {
+            "id": "chat_model_rl_output",
+            "title": "Output tokens per minute limit",
+            "description": "Limits the number of output tokens per minute to the chat model. Waits if the limit is exceeded. Set to 0 to disable rate limiting.",
+            "type": "number",
+            "value": settings["chat_model_rl_output"],
         }
     )
 
@@ -168,7 +207,7 @@ def convert_out(settings: Settings) -> SettingsOutput:
             "id": "util_model_name",
             "title": "Utility model name",
             "description": "Exact name of model from selected provider",
-            "type": "input",
+            "type": "text",
             "value": settings["util_model_name"],
         }
     )
@@ -183,6 +222,58 @@ def convert_out(settings: Settings) -> SettingsOutput:
             "max": 1,
             "step": 0.01,
             "value": settings["util_model_temperature"],
+        }
+    )
+    
+    # util_model_fields.append(
+    #     {
+    #         "id": "util_model_ctx_length",
+    #         "title": "Utility model context length",
+    #         "description": "Maximum number of tokens in the context window for LLM. System prompt, message and response all count towards this limit.",
+    #         "type": "number",
+    #         "value": settings["util_model_ctx_length"],
+    #     }
+    # )
+    # util_model_fields.append(
+    #     {
+    #         "id": "util_model_ctx_input",
+    #         "title": "Context window space for input tokens",
+    #         "description": "Portion of context window dedicated to input tokens. The remaining space can be filled with response.",
+    #         "type": "range",
+    #         "min": 0.01,
+    #         "max": 1,
+    #         "step": 0.01,
+    #         "value": settings["util_model_ctx_input"],
+    #     }
+    # )
+
+    util_model_fields.append(
+        {
+            "id": "util_model_rl_requests",
+            "title": "Requests per minute limit",
+            "description": "Limits the number of requests per minute to the utility model. Waits if the limit is exceeded. Set to 0 to disable rate limiting.",
+            "type": "number",
+            "value": settings["util_model_rl_requests"],
+        }
+    )
+
+    util_model_fields.append(
+        {
+            "id": "util_model_rl_input",
+            "title": "Input tokens per minute limit",
+            "description": "Limits the number of input tokens per minute to the utility model. Waits if the limit is exceeded. Set to 0 to disable rate limiting.",
+            "type": "number",
+            "value": settings["util_model_rl_input"],
+        }
+    )
+
+    util_model_fields.append(
+        {
+            "id": "util_model_rl_output",
+            "title": "Output tokens per minute limit",
+            "description": "Limits the number of output tokens per minute to the utility model. Waits if the limit is exceeded. Set to 0 to disable rate limiting.",
+            "type": "number",
+            "value": settings["util_model_rl_output"],
         }
     )
 
@@ -219,46 +310,28 @@ def convert_out(settings: Settings) -> SettingsOutput:
             "id": "embed_model_name",
             "title": "Embedding model name",
             "description": "Exact name of model from selected provider",
-            "type": "input",
+            "type": "text",
             "value": settings["embed_model_name"],
         }
     )
-
+    
     embed_model_fields.append(
         {
-            "id": "embed_model_kwargs",
-            "title": "Embedding model additional parameters",
-            "description": "Any other parameters supported by the model. Format is KEY=VALUE on individual lines, just like .env file.",
-            "type": "textarea",
-            "value": _dict_to_env(settings["embed_model_kwargs"]),
+            "id": "embed_model_rl_requests",
+            "title": "Requests per minute limit",
+            "description": "Limits the number of requests per minute to the embedding model. Waits if the limit is exceeded. Set to 0 to disable rate limiting.",
+            "type": "number",
+            "value": settings["embed_model_rl_requests"],
         }
     )
 
-    embed_model_section: SettingsSection = {
-        "title": "Embedding Model",
-        "description": "Settings for the embedding model used by Agent Flux.",
-        "fields": embed_model_fields,
-    }
-
-    # embedding model section
-    embed_model_fields: list[SettingsField] = []
     embed_model_fields.append(
         {
-            "id": "embed_model_provider",
-            "title": "Embedding model provider",
-            "description": "Select provider for embedding model used by the framework",
-            "type": "select",
-            "value": settings["embed_model_provider"],
-            "options": [{"value": p.name, "label": p.value} for p in ModelProvider],
-        }
-    )
-    embed_model_fields.append(
-        {
-            "id": "embed_model_name",
-            "title": "Embedding model name",
-            "description": "Exact name of model from selected provider",
-            "type": "input",
-            "value": settings["embed_model_name"],
+            "id": "embed_model_rl_input",
+            "title": "Input tokens per minute limit",
+            "description": "Limits the number of input tokens per minute to the embedding model. Waits if the limit is exceeded. Set to 0 to disable rate limiting.",
+            "type": "number",
+            "value": settings["embed_model_rl_input"],
         }
     )
 
@@ -480,43 +553,43 @@ def normalize_settings(settings: Settings) -> Settings:
             try:
                 copy[key] = type(value)(copy[key])  # type: ignore
             except (ValueError, TypeError):
-                pass
+                copy[key] = value # make default instead
     return copy
 
 
-def get_chat_model(settings: Settings | None = None) -> BaseChatModel:
-    if not settings:
-        settings = get_settings()
-    return get_model(
-        type=ModelType.CHAT,
-        provider=ModelProvider[settings["chat_model_provider"]],
-        name=settings["chat_model_name"],
-        temperature=settings["chat_model_temperature"],
-        **settings["chat_model_kwargs"],
-    )
+# def get_chat_model(settings: Settings | None = None) -> BaseChatModel:
+#     if not settings:
+#         settings = get_settings()
+#     return get_model(
+#         type=ModelType.CHAT,
+#         provider=ModelProvider[settings["chat_model_provider"]],
+#         name=settings["chat_model_name"],
+#         temperature=settings["chat_model_temperature"],
+#         **settings["chat_model_kwargs"],
+#     )
 
 
-def get_utility_model(settings: Settings | None = None) -> BaseChatModel:
-    if not settings:
-        settings = get_settings()
-    return get_model(
-        type=ModelType.CHAT,
-        provider=ModelProvider[settings["util_model_provider"]],
-        name=settings["util_model_name"],
-        temperature=settings["util_model_temperature"],
-        **settings["util_model_kwargs"],
-    )
+# def get_utility_model(settings: Settings | None = None) -> BaseChatModel:
+#     if not settings:
+#         settings = get_settings()
+#     return get_model(
+#         type=ModelType.CHAT,
+#         provider=ModelProvider[settings["util_model_provider"]],
+#         name=settings["util_model_name"],
+#         temperature=settings["util_model_temperature"],
+#         **settings["util_model_kwargs"],
+#     )
 
 
-def get_embedding_model(settings: Settings | None = None) -> Embeddings:
-    if not settings:
-        settings = get_settings()
-    return get_model(
-        type=ModelType.EMBEDDING,
-        provider=ModelProvider[settings["embed_model_provider"]],
-        name=settings["embed_model_name"],
-        **settings["embed_model_kwargs"],
-    )
+# def get_embedding_model(settings: Settings | None = None) -> Embeddings:
+#     if not settings:
+#         settings = get_settings()
+#     return get_model(
+#         type=ModelType.EMBEDDING,
+#         provider=ModelProvider[settings["embed_model_provider"]],
+#         name=settings["embed_model_name"],
+#         **settings["embed_model_kwargs"],
+#     )
 
 
 def _read_settings_file() -> Settings | None:
@@ -554,17 +627,27 @@ def _get_default_settings() -> Settings:
     return Settings(
         chat_model_provider=ModelProvider.OPENAI.name,
         chat_model_name="gpt-4o-mini",
-        chat_model_temperature=0,
+        chat_model_temperature=0.0,
         chat_model_kwargs={},
-        chat_model_ctx_length=8192,
+        chat_model_ctx_length=120000,
         chat_model_ctx_history=0.7,
+        chat_model_rl_requests=0,
+        chat_model_rl_input=0,
+        chat_model_rl_output=0,
         util_model_provider=ModelProvider.OPENAI.name,
         util_model_name="gpt-4o-mini",
-        util_model_temperature=0,
+        util_model_temperature=0.0,
+        util_model_ctx_length=120000,
+        util_model_ctx_input=0.7,
         util_model_kwargs={},
+        util_model_rl_requests=60,
+        util_model_rl_input=0,
+        util_model_rl_output=0,
         embed_model_provider=ModelProvider.OPENAI.name,
         embed_model_name="text-embedding-3-small",
         embed_model_kwargs={},
+        embed_model_rl_requests=0,
+        embed_model_rl_input=0,
         api_keys={},
         auth_login="",
         auth_password="",

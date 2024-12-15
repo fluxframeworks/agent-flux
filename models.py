@@ -1,5 +1,6 @@
 from enum import Enum
 import os
+from typing import Any
 from langchain_openai import (
     ChatOpenAI,
     OpenAI,
@@ -28,6 +29,7 @@ from langchain_mistralai import ChatMistralAI
 from pydantic.v1.types import SecretStr
 from python.helpers import dotenv
 from python.helpers.dotenv import load_dotenv
+from python.helpers.rate_limiter import RateLimiter
 
 # environment variables
 load_dotenv()
@@ -54,6 +56,9 @@ class ModelProvider(Enum):
     OPENROUTER = "OpenRouter"
     SAMBANOVA = "Sambanova"
     OTHER = "Other"
+
+
+rate_limiters: dict[str, RateLimiter] = {}
 
 
 # Utility function to get API keys from environment variables
