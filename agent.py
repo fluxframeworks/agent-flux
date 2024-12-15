@@ -231,13 +231,6 @@ class Agent:
         self.history = history.History(self)
         self.last_user_message: history.Message | None = None
         self.intervention: UserMessage | None = None
-        self.rate_limiter = rate_limiter.RateLimiter(
-            self.context.log,
-            max_calls=self.config.rate_limit_requests,
-            max_input_tokens=self.config.rate_limit_input_tokens,
-            max_output_tokens=self.config.rate_limit_output_tokens,
-            window_seconds=self.config.rate_limit_seconds,
-        )
         self.data = {}  # free data object all the tools can use
 
     async def monologue(self):
@@ -258,15 +251,7 @@ class Agent:
 
                     try:
                         # prepare LLM chain (model, system, history)
-                        chain, prompt = await self.prepare_chain(
-                            loop_data=self.loop_data
-                        )
-
-                        # rate limiter TODO - move to extension, make per-model
-                        formatted_inputs = prompt.format()
-                        self.set_data(self.DATA_NAME_CTX_WINDOW, formatted_inputs)
-                        token_count = tokens.approximate_tokens(formatted_inputs)
-                        self.rate_limiter.limit_call_and_input(token_count)
+                        prompt = await self.prepare_prompt(loop_data=self.loop_data)
 
                         # output that the agent is starting
                         PrintStyle(
@@ -279,9 +264,11 @@ class Agent:
                             type="agent", heading=f"{self.agent_name}: Generating"
                         )
 
-                        async for chunk in chain.astream({}):
-                            # wait for intervention and handle it, if paused
-                            await self.handle_intervention(agent_response)
+                        async def stream_callback(chunk: str, full: str):
+                            # output the agent response stream
+                            if chunk:
+                                printer.stream(chunk)
+                                self.log_from_stream(full, log)
 
                         # store as last context window content
                         self.set_data(Agent.DATA_NAME_CTX_WINDOW, prompt.format())
@@ -342,7 +329,7 @@ class Agent:
                 # call monologue_end extensions
                 await self.call_extensions("monologue_end", loop_data=self.loop_data)  # type: ignore
 
-    async def prepare_chain(self, loop_data: LoopData):
+    async def prepare_prompt(self, loop_data: LoopData) -> ChatPromptTemplate:
         # set system prompt and message history
         loop_data.system = await self.get_system_prompt(self.loop_data)
         loop_data.history_output = self.history.output()
@@ -371,10 +358,7 @@ class Agent:
                 *history_langchain,
             ]
         )
-
-        # return callable chain
-        chain = prompt | self.config.chat_model
-        return chain, prompt
+        return prompt
 
     def handle_critical_exception(self, exception: Exception):
         if isinstance(exception, HandledException):
@@ -532,6 +516,68 @@ class Agent:
                 await callback(content)
 
         return response
+
+    async def call_chat_model(
+        self,
+        prompt: ChatPromptTemplate,
+        callback: Callable[[str, str], Awaitable[None]] | None = None,
+    ):
+        response = ""
+
+        # model class
+        model = models.get_model(
+            models.ModelType.CHAT,
+            self.config.chat_model.provider,
+            self.config.chat_model.name,
+            **self.config.chat_model.kwargs,
+        )
+
+        # rate limiter
+        limiter = await self.rate_limiter(self.config.chat_model, prompt.format())
+
+        async for chunk in (prompt | model).astream({}):
+            await self.handle_intervention()  # wait for intervention and handle it, if paused
+
+            content = models.parse_chunk(chunk)
+            limiter.add(output=tokens.approximate_tokens(content))
+            response += content
+
+            if callback:
+                await callback(content, response)
+
+        return response
+
+    async def rate_limiter(
+        self, model_config: ModelConfig, input: str, background: bool = False
+    ):
+        # rate limiter log
+        wait_log = None
+
+        async def wait_callback(msg: str, key: str, total: int, limit: int):
+            nonlocal wait_log
+            if not wait_log:
+                wait_log = self.context.log.log(
+                    type="util",
+                    update_progress="none",
+                    heading=msg,
+                    model=f"{model_config.provider.value}\\{model_config.name}",
+                )
+            wait_log.update(heading=msg, key=key, value=total, limit=limit)
+            if not background:
+                self.context.log.set_progress(msg, -1)
+
+        # rate limiter
+        limiter = models.get_rate_limiter(
+            model_config.provider,
+            model_config.name,
+            model_config.limit_requests,
+            model_config.limit_input,
+            model_config.limit_output,
+        )
+        limiter.add(input=tokens.approximate_tokens(input))
+        limiter.add(requests=1)
+        await limiter.wait(callback=wait_callback)
+        return limiter
 
     async def handle_intervention(self, progress: str = ""):
         while self.context.paused:

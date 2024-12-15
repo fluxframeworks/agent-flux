@@ -9,7 +9,6 @@ import models
 from python.helpers import runtime, whisper, defer
 from . import files, dotenv
 
-
 class Settings(TypedDict):
     chat_model_provider: str
     chat_model_name: str
@@ -375,7 +374,7 @@ def convert_out(settings: Settings) -> SettingsOutput:
             "id": "auth_login",
             "title": "UI Login",
             "description": "Set user name for web UI",
-            "type": "input",
+            "type": "text",
             "value": dotenv.get_dotenv_value(dotenv.KEY_AUTH_LOGIN) or "",
         }
     )
@@ -497,7 +496,7 @@ def convert_out(settings: Settings) -> SettingsOutput:
         #         "id": "rfc_auto_docker",
         #         "title": "RFC Auto Docker Management",
         #         "description": "Automatically create dockerized instance of A0 for RFCs using this instance's code base and, settings and .env.",
-        #         "type": "input",
+        #         "type": "text",
         #         "value": settings["rfc_auto_docker"],
         #     }
         # )
@@ -507,7 +506,7 @@ def convert_out(settings: Settings) -> SettingsOutput:
                 "id": "rfc_url",
                 "title": "RFC Destination URL",
                 "description": "URL of dockerized A0 instance for remote function calls. Do not specify port here.",
-                "type": "input",
+                "type": "text",
                 "value": settings["rfc_url"],
             }
         )
@@ -532,7 +531,7 @@ def convert_out(settings: Settings) -> SettingsOutput:
                 "id": "rfc_port_http",
                 "title": "RFC HTTP port",
                 "description": "HTTP port for dockerized instance of A0.",
-                "type": "input",
+                "type": "text",
                 "value": settings["rfc_port_http"],
             }
         )
@@ -542,7 +541,7 @@ def convert_out(settings: Settings) -> SettingsOutput:
                 "id": "rfc_port_ssh",
                 "title": "RFC SSH port",
                 "description": "SSH port for dockerized instance of A0.",
-                "type": "input",
+                "type": "text",
                 "value": settings["rfc_port_ssh"],
             }
         )
@@ -579,7 +578,7 @@ def convert_out(settings: Settings) -> SettingsOutput:
             "id": "stt_language",
             "title": "Language Code",
             "description": "Language code (e.g. en, fr, it)",
-            "type": "input",
+            "type": "text",
             "value": settings["stt_language"],
         }
     )
@@ -602,7 +601,7 @@ def convert_out(settings: Settings) -> SettingsOutput:
             "id": "stt_silence_duration",
             "title": "Silence duration (ms)",
             "description": "Duration of silence before the server considers speaking to have ended.",
-            "type": "input",
+            "type": "text",
             "value": settings["stt_silence_duration"],
         }
     )
@@ -612,7 +611,7 @@ def convert_out(settings: Settings) -> SettingsOutput:
             "id": "stt_waiting_timeout",
             "title": "Waiting timeout (ms)",
             "description": "Duration before the server closes the microphone.",
-            "type": "input",
+            "type": "text",
             "value": settings["stt_waiting_timeout"],
         }
     )
@@ -771,6 +770,8 @@ def _write_sensitive_settings(settings: Settings):
 
 
 def get_default_settings() -> Settings:
+    from models import ModelProvider
+
     return Settings(
         chat_model_provider=ModelProvider.OPENAI.name,
         chat_model_name="gpt-4o-mini",

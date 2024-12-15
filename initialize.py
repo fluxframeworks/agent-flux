@@ -1,6 +1,6 @@
 import asyncio
 import models
-from agent import AgentConfig
+from agent import AgentConfig, ModelConfig
 from python.helpers import dotenv, files, rfc_exchange, runtime, settings, docker, log
 
 
@@ -55,12 +55,7 @@ def initialize():
         prompts_subdir=current_settings["agent_prompts_subdir"],
         memory_subdir=current_settings["agent_memory_subdir"],
         knowledge_subdirs=["default", current_settings["agent_knowledge_subdir"]],
-        # rate_limit_seconds = 60,
-        rate_limit_requests=30,
-        # rate_limit_input_tokens = 0,
-        # rate_limit_output_tokens = 0,
-        # response_timeout_seconds = 60,
-        code_exec_docker_enabled = False,
+        code_exec_docker_enabled=False,
         # code_exec_docker_name = "A0-dev",
         # code_exec_docker_image = "fluxframeworks/agent-flux-run:development",
         # code_exec_docker_ports = { "22/tcp": 55022, "80/tcp": 55080 }
