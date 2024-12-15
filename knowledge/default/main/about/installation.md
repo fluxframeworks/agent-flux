@@ -566,3 +566,48 @@ After following the instructions for your specific operating system, you should 
 
 If you encounter any issues during the installation process, please consult the [Troubleshooting section](troubleshooting.md) of this documentation or refer to the Agent Flux [Skool](https://www.skool.com/agent-flux) or [Discord](https://discord.gg/Z2tun2N3) community for assistance.
 
+## Installing and Using Ollama (Local Models)
+If you're interested in Ollama, which is a powerful tool that allows you to run various large language models locally, here's how to install and use it:
+
+#### First step: installation
+**On Windows:**
+
+Download Ollama from the official website and install it on your machine.
+
+<button>[Download Ollama Setup](https://ollama.com/download/OllamaSetup.exe)</button>
+
+**On macOS:**
+```
+brew install ollama
+```
+Otherwise choose macOS installer from the [official website](https://ollama.com/).
+
+**On Linux:**
+```bash
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
+**Finding Model Names:**
+Visit the [Ollama model library](https://ollama.com/library) for a list of available models and their corresponding names.  The format is usually `provider/model-name` (or just `model-name` in some cases).
+
+#### Second step: pulling the model
+**On Windows, macOS, and Linux:**
+```
+ollama pull <model-name>
+```
+
+Replace `<model-name>` with the name of the model you want to use.  For example, to pull the Mistral Large model, you would use the command `ollama pull mistral-large`.
+
+#### Managing your downloaded models
+Once you've downloaded some models, you might want to check which ones you have available or remove any you no longer need.
+
+- **Listing downloaded models:** 
+  To see a list of all the models you've downloaded, use the command:
+  ```
+  ollama list
+  ```
+- **Removing a model:**
+  If you need to remove a downloaded model, you can use the `ollama rm` command followed by the model name:
+  ```
+  ollama rm <model-name>
+  ```
