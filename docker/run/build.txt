@@ -15,4 +15,4 @@ docker buildx build --build-arg BRANCH=development -t fluxframeworks/agent-flux-
 docker buildx build --build-arg BRANCH=testing -t fluxframeworks/agent-flux-run:testing --platform linux/amd64,linux/arm64 --push --build-arg CACHE_DATE=$(date +%Y-%m-%d:%H:%M:%S) .
 
 # main
-docker buildx build --build-arg BRANCH=testing -t fluxframeworks/agent-flux-run:testing --platform linux/amd64,linux/arm64 --push --no-cache .
+docker buildx build --build-arg BRANCH=main -t fluxframeworks/agent-flux-run:latest --platform linux/amd64,linux/arm64 --push --build-arg CACHE_DATE=$(date +%Y-%m-%d:%H:%M:%S) .

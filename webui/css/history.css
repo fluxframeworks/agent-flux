@@ -18,6 +18,6 @@
   }
   
   /* Viewer Styles */
-  #viewer {
+  .history-viewer {
     overflow: hidden;
 }

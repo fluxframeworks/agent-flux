@@ -6,7 +6,7 @@ const fullScreenInputModalProxy = {
         const chatInput = document.getElementById('chat-input');
         this.inputText = chatInput.value;
         this.isOpen = true;
-        
+
         // Focus the full screen input after a short delay to ensure the modal is rendered
         setTimeout(() => {
             const fullScreenInput = document.getElementById('full-screen-input');
@@ -39,8 +39,9 @@ const genericModalProxy = {
     description: '',
     html: '',
 
-    async openModal(title, description, html) {
+    async openModal(title, description, html, contentClasses = []) {
         const modalEl = document.getElementById('genericModal');
+        const modalContent = document.getElementById('viewer');
         const modalAD = Alpine.$data(modalEl);
 
         modalAD.isOpen = true;
