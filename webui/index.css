@@ -2389,6 +2389,24 @@ input:checked + .slider:before {
   }
 }
 
+/* Link styling */
+a {
+    color: inherit;
+    /* text-decoration: none; */
+}
+
+a:visited {
+    color: inherit;
+}
+
+a:hover {
+    color: inherit;
+}
+
+a:active {
+    color: inherit;
+}
+
 /* Light mode class */
 .light-mode {
   --color-background: var(--color-background-light);
