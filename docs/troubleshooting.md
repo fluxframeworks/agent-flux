@@ -18,7 +18,7 @@ Refer to the [Choosing your LLMs](installation.md#installing-and-using-ollama-lo
 Refer to the [How to update Agent Flux](installation.md#how-to-update-agent-flux) section of the documentation for instructions on how to update Agent Flux while retaining memory and data.
 
 **7. Where can I find more documentation or tutorials?**
--   Join the Agent Flux [Skool](https://www.skool.com/agent-flux) or [Discord](https://discord.gg/Z2tun2N3) community for support and discussions.
+-   Join the Agent Flux [Discord](https://discord.gg/FvgkyNCk9P) community for support and discussions.
 
 **8. How do I adjust API rate limits?**
 Modify the `rate_limit_seconds` and `rate_limit_requests` parameters in the `AgentConfig` class within `initialize.py`.
