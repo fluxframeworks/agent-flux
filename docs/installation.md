@@ -1,9 +1,3 @@
-# Users installation guide for Windows, macOS and Linux
-
-[![Setup Guide](res/setup/thumb_setup.png)](https://www.youtube.com/watch?v=wWAqJpl3uQE)
-
-The following user guide provides instructions for installing and running Agent Flux using Docker, which is the primary runtime environment for the framework. For developers and contributors, we also provide instructions for setting up the [full development environment](#in-depth-guide-for-full-binaries-installation).
-
 ### Need updates from v0.7? 👉[How to update Agent Flux](#how-to-update-agent-flux)
 
 ## Windows, macOS and Linux Setup Guide
@@ -75,7 +69,7 @@ Note*: Offline operation requires prompt adjustments
 - Click the `Pull` button
 - The image will be downloaded to your machine in a few minutes
 
-![docker pull](res/setup/1-docker-image-search.png)
+![docker pull](res/setup/1-docker-image-search-updated.png)
 
 > [!TIP]
 > Alternatively, run the following command in your terminal:
@@ -109,12 +103,12 @@ Note*: Offline operation requires prompt adjustments
   - Host path: Your chosen directory (e.g., `C:\agent-flux-data`)
   - Container path: `/a0`
 
-![docker port mapping](res/setup/3-docker-port-mapping.png)
+![docker port mapping](res/setup/3-docker-port-mapping-updated.png)
 
 - Click the `Run` button in the "Images" tab.
 - The container will start and show in the "Containers" tab
 
-![docker containers](res/setup/4-docker-container-started.png)
+![docker containers](res/setup/4-docker-container-started-updated.png)
 
 > [!TIP]
 > Alternatively, run the following command in your terminal:
@@ -128,12 +122,12 @@ Note*: Offline operation requires prompt adjustments
 - The framework will take a few seconds to initialize and the Docker logs will look like the image below.
 - Find the mapped port in Docker Desktop (shown as `<PORT>:80`) or click the port right under the container ID as shown in the image below
 
-![docker logs](res/setup/5-docker-click-to-open.png)
+![docker logs](res/setup/5-docker-click-to-open-updated.png)
 
 - Open `http://localhost:<PORT>` in your browser
 - The Web UI will open. Agent Flux is ready for configuration!
 
-![docker ui](res/setup/6-docker-a0-running.png)
+![docker ui](res/setup/6-docker-a0-running-updated.png)
 
 > [!TIP]
 > You can also access the Web UI by clicking the ports right under the container ID in Docker Desktop.
@@ -163,7 +157,7 @@ Agent Flux provides a comprehensive settings interface to customize various aspe
 - **Context Length:** Set the maximum token limit for context window
 - **Context Window Space:** Configure how much of the context window is dedicated to chat history
 
-![chat model settings](res/setup/settings/2-chat-model.png)
+![chat model settings](res/setup/settings/2-chat-model-updated.png)
 
 ### Utility Model Configuration
 - **Provider & Model:** Select a smaller, faster model for utility tasks like memory organization and summarization
@@ -187,7 +181,7 @@ Agent Flux provides a comprehensive settings interface to customize various aspe
 - **UI Password:** Configure password for web interface security
 - **Root Password:** Manage Docker container root password for SSH access
 
-![settings](res/setup/settings/3-auth.png)
+![settings](res/setup/settings/3-auth-updated.png)
 
 ### Development Settings
 - **RFC Parameters (local instances only):** configure URLs and ports for remote function calls between instances
@@ -261,7 +255,7 @@ ollama pull <model-name>
 
 4. Click `Save` to confirm your settings.
 
-![ollama](res/setup/settings/4-local-models.png)
+![ollama](res/setup/settings/4-local-models-updated.png)
 
 #### Managing your downloaded models
 Once you've downloaded some models, you might want to check which ones you have available or remove any you no longer need.
@@ -331,7 +325,7 @@ For developers or users who need to run Agent Flux directly on their system,see 
 - Right-click and select "Remove" to remove the container
 - Go to "Images" tab and remove the `fluxframeworks/agent-flux-run` image or click the three dots to pull the difference and update the Docker image.
 
-![docker delete image](res/setup/docker-delete-image-1.png)
+![docker delete image](res/setup/docker-delete-image-1-updated.png)
 
 - Search and pull the new image if you chose to remove it
 - Run the new container with the same volume settings as the old one
