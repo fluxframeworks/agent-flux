@@ -355,21 +355,6 @@ For developers or users who need to run Agent Flux directly on their system,see 
 > docker run -p $PORT:80 -v /path/to/your/data:/a0 fluxframeworks/agent-flux-run
 > ```
 
-3. **Full Binaries**
-- Using Git/GitHub: Pull the latest version of the Agent Flux repository. 
-- The custom knowledge, solutions, memory, and other data will get ignored, so you don't need to worry about losing any of your custom data. The same goes for your .env file with all of your API keys and settings.json.
-
-> [!WARNING]  
-> - If you update manually, beware: save your .env file with the API keys, and look for new dependencies in requirements.txt. 
-> - If any changes are made to the requirements of the updated version, you have to execute this command inside the a0 conda env after activating it:
-> ```bash
-> pip install -r requirements.txt
-
-# In-Depth Guide for Full Binaries Installation
-- Agent Flux is a framework. It's made to be customized, edited, enhanced. Therefore you need to install the necessary components to run it when downloading its full binaries. This guide will help you to do so.
-- The following step by step instructions can be followed along with a video for this tutorial on how to make Agent Flux work with its full development environment.
-
-[![Video](res/setup/thumb_play.png)](https://youtu.be/8H7mFsvxKYQ)
 
 ## Reminders:
 1. There's no need to install Python, Conda will manage that for you.
