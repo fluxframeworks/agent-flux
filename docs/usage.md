@@ -1,7 +1,7 @@
 # Usage Guide
 This guide explores usage and configuration scenarios for Agent Flux. You can consider this as a reference post-installation guide.
 
-![Utility Message with Solutions](res/memory-man.png)
+![Utility Message with Solutions](res/memory-man-updated.png)
 
 ## Basic Operations
 Agent Flux provides several basic operations through its interface:
@@ -9,7 +9,7 @@ Agent Flux provides several basic operations through its interface:
 ### Restart Framework
 The Restart button allows you to quickly restart the Agent Flux framework without using the terminal:
 
-![Restart Framework](res/ui-restarting.png)
+![Restart Framework](res/ui-restarting-updated.png)
 
 * Click the "Restart" button in the sidebar
 * A blue notification will appear indicating "Restarting..."
