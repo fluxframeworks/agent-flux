@@ -42,7 +42,7 @@
 3. **Multi-Agent Collaboration**
 
 - **Agent Flux (Root Agent):** Directly interacts with the user, processing requests and managing workflows.
-- **Subordinate Agents:** Flux can spawn specialized sub-agents to break down and complete complex tasks in parallel.
+- **Agent Echo (Subordinate Agent):** Flux can spawn Echo as a specialized sub-agent to break down and complete complex tasks in parallel.
 
 By delegating tasks strategically, Agent Flux maintains cleaner context, increased efficiency, and scalable problem-solving.
 
