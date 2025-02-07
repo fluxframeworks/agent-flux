@@ -52,14 +52,14 @@ Located beneath the chat input box, Agent Flux provides a set of action buttons 
   - Shows current conversation context
   - Displays active instructions and parameters
 
-![Context](res/ui-context.png)
+![Context](res/ui-context-updated.png)
 
 ### History: 
 Access the chat history in JSON format
   - View the conversation as processed by the LLM
   - Useful for debugging and understanding agent behavior
 
-![History](res/ui-history.png)
+![History](res/ui-history-updated.png)
 
 * **Nudge:** Restart the agent's last process
   - Useful when agents become unresponsive
@@ -92,7 +92,7 @@ Agent Flux supports direct file attachments in the chat interface for seamless f
   - Perform operations on multiple files simultaneously
   - Confirm successful file operations with detailed responses
 
-![Working with Attachments](res/ui-attachments-2.png)
+![Working with Attachments](res/ui-attachments-2-updated.png)
 
 > [!TIP]
 > When working with multiple files, you can attach them all at once and then give instructions about what to do with them. The agent will handle them as a batch while keeping you informed of the progress.
@@ -126,8 +126,8 @@ One of Agent Flux's unique features is multi-agent cooperation.
 * **Communication:** Agents can communicate with each other, sharing information and coordinating actions. The system prompt and message history play a key role in guiding this communication.
 * **Hierarchy:** Agent Flux uses a [hierarchical structure](architecture.md#agent-hierarchy-and-communication), with superior agents delegating tasks to subordinates.  This allows for structured problem-solving and efficient resource allocation.
 
-![](res/physics.png)
-![](res/physics-2.png)
+![](res/physics-updated.png)
+![](res/physics-2-v2.png)
 
 ## Prompt Engineering
 Effective prompt engineering is crucial for getting the most out of Agent Flux. Here are some tips and techniques:
@@ -199,7 +199,7 @@ Agent Flux supports KaTeX for beautiful mathematical typesetting:
   - Example: Type `$$F = G\frac{m_1m_2}{r^2}$$`
   - Renders as a centered equation
 
-![KaTeX](res/ui-katex-1.png)
+![KaTeX](res/ui-katex-1-updated.png)
 
 * **Complex Mathematics:** Supports full KaTeX syntax for:
   - Fractions, exponents, and roots
@@ -208,7 +208,7 @@ Agent Flux supports KaTeX for beautiful mathematical typesetting:
   - Integrals, summations, and limits
   - Mathematical alignments and equations
 
-![KaTeX display](res/ui-katex-2.png)
+![KaTeX display](res/ui-katex-2-updated.png)
 
 > [!TIP]
 > When asking the agent to solve mathematical problems, it will automatically respond using KaTeX formatting for clear and professional-looking mathematical expressions.
