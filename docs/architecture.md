@@ -4,7 +4,7 @@ Agent Flux is built on a flexible and modular architecture designed for extensib
 ## System Architecture
 This simplified diagram illustrates the hierarchical relationship between agents and their interaction with tools, extensions, instruments, prompts, memory and knowledge base.
 
-![Agent Flux Architecture](res/arch-01.svg)
+![Agent Flux Architecture](res/arch-01-updated.png)
 
 The user or Agent Flux is at the top of the hierarchy, delegating tasks to subordinate agents, which can further delegate to other agents. Each agent can utilize tools and access the shared assets (prompts, memory, knowledge, extensions and instruments) to perform its tasks.
 
