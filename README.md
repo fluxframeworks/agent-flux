@@ -46,7 +46,7 @@
 
 By delegating tasks strategically, Agent Flux maintains cleaner context, increased efficiency, and scalable problem-solving.
 
-![Multi-agent 2](docs/res/physics-2.png)
+![Multi-agent 2](docs/res/Agent_Echo_Generating.png)
 
 4. **Fully Customizable and Extensible**
 
