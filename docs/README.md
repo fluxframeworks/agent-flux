@@ -11,7 +11,7 @@ To begin with Agent Flux, follow the links below for detailed guides on various 
 ### Your experience with Agent Flux starts now!
 
 - **Download Agent Flux:** Follow the [installation guide](installation.md) to download and run Agent Flux.
-- **Join the Community:** Join the Agent Flux [Skool](https://www.skool.com/agent-flux) or [Discord](https://discord.gg/Z2tun2N3) community to discuss ideas, ask questions, and collaborate with other contributors.
+- **Join the Community:** Join the Agent Flux [Discord](https://discord.gg/bF9RYYX5hD) community to discuss ideas, ask questions, and collaborate with other contributors.
 - **Share your Work:** Share your Agent Flux creations, workflows and discoverings on our [Show and Tell](https://github.com/fluxframeworks/agent-flux/discussions/categories/show-and-tell) area on GitHub.
 - **Report Issues:** Use the [GitHub issue tracker](https://github.com/fluxframeworks/agent-flux/issues) to report framework-relative bugs or suggest new features.
 
