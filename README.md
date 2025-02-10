@@ -99,7 +99,6 @@ docker run -p 50001:80 fluxframeworks/agent-flux-run
 # Visit http://localhost:50001 to start
 ```
 
-- Developers and contributors: download the full binaries for your system from the [releases page](https://github.com/fluxframeworks/agent-flux/releases) and then follow the instructions [provided here](docs/installation.md#in-depth-guide-for-full-binaries-installation).
 
 ## 🐳 Fully Dockerized, with Speech-to-Text and TTS
 
