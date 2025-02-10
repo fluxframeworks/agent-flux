@@ -52,7 +52,7 @@ Located beneath the chat input box, Agent Flux provides a set of action buttons 
   - Shows current conversation context
   - Displays active instructions and parameters
 
-![Context](res/ui-context-updated.png)
+![Context](res/ui-context-updatedv2.png)
 
 ### History: 
 Access the chat history in JSON format
