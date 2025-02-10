@@ -9,7 +9,7 @@ Agent Flux provides several basic operations through its interface:
 ### Restart Framework
 The Restart button allows you to quickly restart the Agent Flux framework without using the terminal:
 
-![Restart Framework](res/ui-restarting-updated.png)
+![Restart Framework](res/ui-restarting-updated-v2.png)
 
 * Click the "Restart" button in the sidebar
 * A blue notification will appear indicating "Restarting..."
